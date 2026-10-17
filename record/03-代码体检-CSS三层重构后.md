@@ -206,3 +206,19 @@ node node_modules/vite/bin/vite.js build
 - **最大的坑不在 CSS，在路径**：`../` 在 dev 下靠 URL 规则侥幸通过，`vite build` 一定炸。这件事越早修越好，越晚改越容易漏。
 - **重构会带来回归**：设置面板跑偏就是典型 —— 改了 `.pet` 的尺寸语义，却没跟着检查依赖它定位的子元素。以后每次动容器，都要问一句"谁 absolute 挂在它身上"。
 - **JS 那部分基本没动**，上一轮指出的气泡复位 bug 还在，正好并到这一轮一起修。
+
+---
+
+## 六、修复记录（17:12 核实）
+
+| 编号 | 问题 | 状态 | 做法 |
+|---|---|---|---|
+| P0-1 | `../` 导致 `vite build` 失败 | ✅ **已修** | `index.html` 五处 `../` 全改 `./`：3 个 `<link>`、`<img>`、`<script>`。实测 `vite build` → `✓ built in 213ms`，产出 `dist/index.html` + `assets/{index.css, index.js, shark.png}` |
+| P1-1 | 设置面板跑到视口右下角 | ✅ **已修** | 比"简单版"更紧：面板从 `.pet` 挪进 `.pet__controls`，`.pet__controls` 加 `position:relative`，面板改 `right:0; bottom:100%; margin-bottom:10px` → 永远贴着「⚙ 设置」正上方，换成任何屏宽都不脱节 |
+| P0-2 | `package.json` 在 `JSON/` | ⏳ 未动 | 仍待你拍板。当前跑法 `node node_modules/vite/bin/vite.js` |
+| P1-2 | 退出再进对话框消失 | ⏳ 未动 | 一行 `bubble.classList.remove('hidden')`，属 JS 范围，建议单独一小步 |
+| P1-3 | 首图 2.43MB | ⏳ 未动 | 建议转 WebP |
+
+一次性提交：`e623b61 refactor: CSS 拆为 base / common / style 三层`
+
+> 另：`.gitignore` 追加了 `*.log`，避免本地探测日志进仓库。
