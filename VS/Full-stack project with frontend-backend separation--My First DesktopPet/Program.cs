@@ -1,9 +1,16 @@
+using PetApi.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // ==================== 服务注册 ====================
 // 这一段是「往依赖注入容器里放东西」，此时还没开始处理任何请求。
 
 builder.Services.AddControllers();
+
+// 「小沃怎么说话」做成服务，控制器只依赖接口。
+// Singleton：无状态、没有 per-request 数据，整个程序一个实例就够（也最省内存）。
+// 以后换成接大模型，只把这一行的实现类换掉，控制器一行都不用动。
+builder.Services.AddSingleton<IChatService, RuleBasedChatService>();
 
 // 跨域（CORS）：浏览器默认禁止 A 源（前端 5173）读 B 源（后端 5003）的响应。
 // 后端必须显式声明「我允许谁读」，否则前端 fetch 会直接抛错。

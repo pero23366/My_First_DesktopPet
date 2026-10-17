@@ -4,10 +4,9 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <!-- 项目和文件夹名带空格和连字符，VS 自动生成的命名空间会变成
-         Full_stack_project_with_frontend_backend_separation__My_First_DesktopPet 这种怪物。
-         这里手动指定成 PetApi，代码里 namespace 就干净了。
-         （XML 注释里不能出现连续两个减号，所以上面没写原名） -->
+    <!-- 项目改名成 My First DesktopPet 之后，VS 自动生成的命名空间是
+         My_First_DesktopPet（带下划线），代码里不好看。
+         这里手动指定成 PetApi，namespace 更干净，也和程序集名一致。 -->
     <RootNamespace>PetApi</RootNamespace>
     <AssemblyName>PetApi</AssemblyName>
   </PropertyGroup>

@@ -27,6 +27,8 @@ function addMessage(text, from) {
 
   bubble.classList.remove('hidden') // 有新消息就把气泡拉回来
   chatLog.scrollTop = chatLog.scrollHeight // 滚到底，新消息永远看得见
+
+  return li // 把这一条返回出去，调用方后面可以就地改它的文字（比如把"…"换成真回复）
 }
 
 // ---------- 3. 生成 / 退出 ----------
@@ -50,19 +52,67 @@ exitBtn.addEventListener('click', () => {
   clearTimeout(hideTimer)
 })
 
-// ---------- 4. 发消息 ----------
-function send() {
+// ---------- 4. 发消息（真正走后端） ----------
+let isSending = false // 防止连按回车重复发同一句
+
+async function send() {
   const text = inputBox.value.trim()
   if (text === '') return // 空消息不发
+  if (isSending) return // 上一句还没回来，忽略这次
 
   addMessage(text, 'me')
   inputBox.value = ''
-  inputBox.focus()
-
-  // 后端还没接，先给一句固定回复占位。接入后这里换成 fetch。
-  addMessage('（这是占位回复，等后端接上就换成真的）', 'pet')
-
   scheduleAutoHide()
+
+  // 先把「…」占位放进去，等真回复回来再就地替换 —— 这样用户立刻看到反应，不会以为卡住了
+  const pending = addMessage('…', 'pet')
+  setBusy(true)
+
+  try {
+    pending.textContent = await postChat(text)
+  } catch (err) {
+    // abort 是我们自己掐的超时，其它基本都是网络 / CORS / 后端没起
+    pending.textContent =
+      err.name === 'AbortError'
+        ? '（想太久了……先不说这个）'
+        : '（我连不上后端，去设置里看看 API 地址）'
+    console.error('发送失败：', err)
+  } finally {
+    setBusy(false)
+    scheduleAutoHide() // 从「回复到达」这一秒开始重新计时 10 秒
+  }
+}
+
+// 请求期间锁住输入框和发送键：避免用户连点，也顺带告诉他们"正在处理"
+function setBusy(busy) {
+  isSending = busy
+  inputBox.disabled = busy
+  sendBtn.disabled = busy
+  if (!busy) inputBox.focus()
+}
+
+// POST /api/chat，返回小沃那句话
+async function postChat(message) {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), 15000) // 后端要是挂了，别让界面永远转
+
+  try {
+    const res = await fetch(getApiBase() + '/api/chat', {
+      method: 'POST',
+      // 带了 Content-Type: application/json 就会触发 CORS 预检（OPTIONS），
+      // 后端的 UseCors 必须排在 MapControllers 前面，否则这一步直接失败。
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message }), // 键名必须和后端 ChatRequest.Message 对上
+      signal: controller.signal,
+    })
+
+    if (!res.ok) throw new Error('HTTP ' + res.status)
+
+    const data = await res.json()
+    return data.reply // 后端是 Reply，JSON 序列化后就是 reply
+  } finally {
+    clearTimeout(timer)
+  }
 }
 
 sendBtn.addEventListener('click', send)
@@ -108,6 +158,12 @@ function normalizeBase(raw) {
   return raw.trim().replace(/\/+$/, '')
 }
 
+// 当前生效的后端地址：以输入框里的内容为准，空着就退回默认值。
+// 发消息和测试连接都走这一个函数，避免两处各算各的。
+function getApiBase() {
+  return normalizeBase(apiBaseInput.value) || API_DEFAULT
+}
+
 function showApiStatus(text, ok) {
   apiStatus.textContent = text
   apiStatus.classList.toggle('pet__api-status--ok', ok === true)
@@ -132,11 +188,7 @@ apiSaveBtn.addEventListener('click', () => {
 
 // 测试连接：打一个 /api/health，能通就说明地址和后端 CORS 都对
 apiTestBtn.addEventListener('click', async () => {
-  const base = normalizeBase(apiBaseInput.value)
-  if (base === '') {
-    showApiStatus('地址不能为空', false)
-    return
-  }
+  const base = getApiBase()
 
   showApiStatus('连接中…', null)
 
