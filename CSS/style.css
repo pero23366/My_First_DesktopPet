@@ -95,12 +95,11 @@
   gap: 12px;
 }
 
+/* 现在它是一个「帧盒」：三张图都铺在这块方框里，所以只定尺寸，不定内容 */
 .pet__image {
-  display: block;
+  position: relative;
   width: 260px;
-  height: auto;
-  user-select: none;
-  -webkit-user-drag: none;
+  aspect-ratio: 1 / 1;
 }
 
 .pet__controls {

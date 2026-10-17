@@ -28,7 +28,12 @@
 
     <!-- 右边：小鲨鱼 + 底部一排控件 -->
     <div class="pet__stage">
-      <img class="pet__image" src="./image/shark.png" alt="小鲨鱼" />
+      <!-- 待机动画：3 帧叠在同一位置，靠 CSS 逐个点亮（不换 src，避免闪烁） -->
+      <div class="pet__image" role="img" aria-label="小沃">
+        <img class="pet__frame pet__frame--1" src="./image/idle-1.png" alt="" />
+        <img class="pet__frame pet__frame--2" src="./image/idle-2.png" alt="" />
+        <img class="pet__frame pet__frame--3" src="./image/idle-3.png" alt="" />
+      </div>
 
       <div class="pet__controls">
         <!-- 设置按钮 -->
