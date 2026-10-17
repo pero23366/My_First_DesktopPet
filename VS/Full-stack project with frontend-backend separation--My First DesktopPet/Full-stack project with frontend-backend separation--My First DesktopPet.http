@@ -1,0 +1,10 @@
+@HostAddress = http://localhost:5003
+
+### 健康检查：前端「测试连接」按钮打的就是这个
+GET {{HostAddress}}/api/health
+Accept: application/json
+
+### 模拟前端跨域请求（带 Origin 头），用来确认 CORS 放行
+GET {{HostAddress}}/api/health
+Origin: http://localhost:5173
+Accept: application/json

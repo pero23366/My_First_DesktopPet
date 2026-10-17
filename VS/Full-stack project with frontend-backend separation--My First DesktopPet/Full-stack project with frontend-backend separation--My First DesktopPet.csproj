@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- 项目和文件夹名带空格和连字符，VS 自动生成的命名空间会变成
+         Full_stack_project_with_frontend_backend_separation__My_First_DesktopPet 这种怪物。
+         这里手动指定成 PetApi，代码里 namespace 就干净了。
+         （XML 注释里不能出现连续两个减号，所以上面没写原名） -->
+    <RootNamespace>PetApi</RootNamespace>
+    <AssemblyName>PetApi</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
+  </ItemGroup>
+
+</Project>

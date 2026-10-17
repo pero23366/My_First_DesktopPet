@@ -96,7 +96,7 @@ function scheduleAutoHide() {
 // ---------- 7. 后端 API 配置 ----------
 // 地址存在 localStorage 里：改了不用动代码，刷新页面也还在。
 const API_KEY = 'pet.apiBase' // 键名带前缀，避免和别的项目撞车
-const API_DEFAULT = 'http://localhost:5080'
+const API_DEFAULT = 'http://localhost:5003' // 与后端 launchSettings.json 的 http 配置一致
 
 const apiBaseInput = document.querySelector('#apiBase')
 const apiTestBtn = document.querySelector('#apiTestBtn')

@@ -23,3 +23,16 @@ Thumbs.db
 
 # 本地日志 / 探测输出
 *.log
+
+# ---------- .NET / Visual Studio ----------
+# bin、obj 是编译产物，每次 build 都重新生成，绝不能进仓库
+bin/
+obj/
+# VS 的用户级缓存（含窗口布局、索引），每个人都不一样
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+# 发布产物
+publish/
