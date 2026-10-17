@@ -5,6 +5,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>My First DestopPet</title>
+  <!-- 三层样式，加载顺序不能换：地基 → 零件 → 页面 -->
+  <link rel="stylesheet" href="./CSS/base.css" />
+  <link rel="stylesheet" href="./CSS/common.css" />
   <link rel="stylesheet" href="./CSS/style.css" />
 </head>
 
@@ -25,7 +28,7 @@
 
     <!-- 右边：小鲨鱼 + 底部一排控件 -->
     <div class="pet__stage">
-      <img class="pet__image" src="./image/shark.svg" alt="小鲨鱼" />
+      <img class="pet__image" src="./image/shark.png" alt="小鲨鱼" />
 
       <div class="pet__controls">
         <!-- 设置按钮 -->
@@ -39,17 +42,18 @@
           <!-- 输入键（发送） -->
           <button class="pet__icon pet__icon--send" id="sendBtn" type="button" title="发送">↑</button>
         </div>
-      </div>
-    </div>
 
-    <!-- 设置面板：点「⚙ 设置」才出现 -->
-    <div class="pet__settings hidden" id="settingsPanel">
-      <p class="pet__settings-title">设置</p>
-      <label class="pet__settings-item">
-        <input type="checkbox" id="autoHideToggle" checked />
-        <span>对话 10 秒后自动隐藏</span>
-      </label>
-      <button class="pet__btn pet__btn--wide" id="clearBtn" type="button">清空对话</button>
+        <!-- 设置面板：点「⚙ 设置」才出现。
+             放在 .pet__controls 内部，是为了让它绝对定位到控件上方，而不是贴着整个页面 -->
+        <div class="pet__settings hidden" id="settingsPanel">
+          <p class="pet__settings-title">设置</p>
+          <label class="pet__settings-item">
+            <input type="checkbox" id="autoHideToggle" checked />
+            <span>对话 10 秒后自动隐藏</span>
+          </label>
+          <button class="pet__btn pet__btn--wide" id="clearBtn" type="button">清空对话</button>
+        </div>
+      </div>
     </div>
   </section>
 

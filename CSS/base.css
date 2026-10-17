@@ -1,0 +1,61 @@
+/* ============================================================
+   base.css —— 地基层
+   只放三样东西：设计变量 / 全局清零 / 全站工具类。
+   这一层不允许出现任何「具体页面」或「具体组件」的东西。
+   ============================================================ */
+
+/* ---------- 1. 设计变量 ---------- */
+/* 统一在这里改色，全站跟着变。分组按「用途」而不是按「页面」。 */
+:root {
+  /* 中性色 */
+  --bg: #f5f6fa;
+  --panel: #ffffff;
+  --text: #1f2333;
+  --text-dim: #6b7185;
+  --border: #d8dbe6;
+
+  /* 品牌色 */
+  --accent: #5b7cfa;
+
+  /* 语义色 */
+  --danger: #ff4d4d;
+
+  /* 对话气泡（沿用前作 WPF 配色） */
+  --bubble-bg: #fff9e6;
+  --bubble-border: #ffd700;
+
+  /* 圆角档位：小件 / 中件 / 大件 / 全圆 */
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-full: 999px;
+
+  /* 阴影档位：贴着 / 浮起 */
+  --shadow-1: 0 6px 18px rgba(20, 30, 60, 0.12);
+  --shadow-2: 0 10px 26px rgba(20, 30, 60, 0.15);
+}
+
+/* ---------- 2. 全局清零 ---------- */
+/* ::before / ::after 也一并清，否则它们会继承不到 border-box */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ---------- 3. 根元素 ---------- */
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16px;
+  font-family: "Microsoft YaHei", system-ui, sans-serif;
+}
+
+/* ---------- 4. 全站工具类 ---------- */
+/* 唯一的显隐开关。加 !important 是为了压过任何组件的 display 声明。 */
+.hidden {
+  display: none !important;
+}

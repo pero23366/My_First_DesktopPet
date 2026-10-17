@@ -1,42 +1,19 @@
-/* 小步 1：首页骨架 · 小步 2：桌宠窗口（静态小鲨鱼 + 对话框 + 控件） */
-
-:root {
-  --bg: #f5f6fa;
-  --panel: #ffffff;
-  --text: #1f2333;
-  --text-dim: #6b7185;
-  --accent: #5b7cfa;
-
-  /* 桌宠专用色，和后面对齐前作 WPF 的配色 */
-  --bubble-bg: #fff9e6;
-  --bubble-border: #ffd700;
-  --danger: #ff4d4d;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg);
-  color: var(--text);
-  font-family: "Microsoft YaHei", system-ui, sans-serif;
-}
-
-/* 全站唯一的显隐开关：加 hidden 就藏起来 */
-.hidden {
-  display: none !important;
-}
+/* ============================================================
+   style.css —— 页面层
+   只写「这一页长在哪」：布局、位置、间距、专属尺寸。
+   零件的长相一律不在这里重复 —— 那是 common.css 的事。
+   加载顺序必须是 base.css → common.css → style.css，
+   因为后加载的能覆盖前面的同名属性。
+   ============================================================ */
 
 /* ==================== 首页 ==================== */
 
 .home {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
 }
 
@@ -59,7 +36,7 @@ body {
   color: #fff;
   background: var(--accent);
   border: none;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   cursor: pointer;
   transition: transform 0.15s, opacity 0.15s;
 }
@@ -71,61 +48,42 @@ body {
 
 /* ==================== 桌宠窗口 ==================== */
 
-/* 整体是「左边对话框 + 右边小鲨鱼」两栏，位置相对定位好给设置面板当参照 */
+/* 左对话 + 右鲨鱼 的两栏容器。
+   relative 是给 .pet__settings 当定位参照物用的。 */
 .pet {
   position: relative;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
   gap: 28px;
+  padding: 24px;
 }
 
 /* ---------- 左：对话框 ---------- */
 
 .pet__bubble {
+  display: flex;
   width: 300px;
   height: 340px;
   padding: 10px;
+  overflow: hidden;
   background: var(--bubble-bg);
   border: 2px solid var(--bubble-border);
-  border-radius: 16px;
-  box-shadow: 0 6px 18px rgba(20, 30, 60, 0.12);
-  overflow: hidden;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-1);
 }
 
 .pet__log {
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 10px;
   list-style: none;
   padding-right: 4px;
-}
-
-.pet__msg {
-  max-width: 100%;
-  padding: 8px 11px;
-  font-size: 14px;
-  line-height: 1.6;
-  border-radius: 12px;
-  word-break: break-word;
-}
-
-/* 我说的话：靠右、蓝底 */
-.pet__msg--me {
-  align-self: flex-end;
-  background: #e5efff;
-  border: 1px solid #c9dcff;
-  text-align: right;
-}
-
-/* 小鲨鱼说的话：靠左、白底 */
-.pet__msg--pet {
-  align-self: flex-start;
-  background: #ffffff;
-  border: 1px solid #ffe08a;
 }
 
 /* ---------- 右：小鲨鱼 + 控件 ---------- */
@@ -146,104 +104,42 @@ body {
 }
 
 .pet__controls {
+  position: relative; /* 给 .pet__settings 当定位参照物：面板要浮在控件上方 */
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
 }
 
-/* 设置按钮 / 清空按钮共用 */
-.pet__btn {
-  width: 88px;
-  height: 28px;
-  font-size: 12px;
-  font-family: inherit;
-  font-weight: 700;
-  color: #666;
-  background: #fff;
-  border: 1px solid #ccc;
-  border-radius: 14px;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-}
-
-.pet__btn:hover {
-  background: #f1f3f9;
-  color: var(--accent);
-}
-
-.pet__btn--wide {
-  width: 100%;
-}
-
-/* 退出键 + 输入框 + 发送键 一行 */
 .pet__row {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.pet__icon {
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  font-size: 14px;
-  font-weight: 700;
-  color: #fff;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: transform 0.12s;
-}
-
-.pet__icon:hover {
-  transform: scale(1.08);
-}
-
-.pet__icon--exit {
-  background: var(--danger);
-}
-
-.pet__icon--send {
-  background: #4d6bfe;
-  font-size: 16px;
-}
-
-.pet__input {
+/* 输入框宽度属于布局，所以不在 .pet__input 里写死 */
+.pet__row .pet__input {
   width: 220px;
-  height: 32px;
-  padding: 0 12px;
-  font-size: 14px;
-  font-family: inherit;
-  color: var(--text);
-  background: #fff;
-  border: 1px solid #d8dbe6;
-  border-radius: 16px;
-  outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
-}
-
-.pet__input:focus {
-  border-color: #4d6bfe;
-  box-shadow: 0 0 0 3px rgba(77, 107, 254, 0.15);
 }
 
 /* ---------- 设置面板 ---------- */
 
+/* 外观是一张浮起的卡片，位置要压在控件正上方：
+   bottom:100% = 卡片底边贴着「参照物（.pet__controls）的上边」 */
 .pet__settings {
   position: absolute;
   right: 0;
-  bottom: 76px;
+  bottom: 100%;
   display: flex;
   flex-direction: column;
   gap: 10px;
   width: 200px;
+  margin-bottom: 10px;
   padding: 12px;
   background: var(--panel);
   border: 1px solid #e3e6ef;
-  border-radius: 12px;
-  box-shadow: 0 10px 26px rgba(20, 30, 60, 0.15);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-2);
 }
 
 .pet__settings-title {
@@ -264,7 +160,8 @@ body {
   cursor: pointer;
 }
 
-/* 窄屏时两栏自动上下排 */
+/* ==================== 窄屏 ==================== */
+
 @media (max-width: 680px) {
   .pet {
     padding: 20px 12px;
@@ -276,7 +173,7 @@ body {
     height: 260px;
   }
 
-  .pet__input {
+  .pet__row .pet__input {
     width: 170px;
   }
 }

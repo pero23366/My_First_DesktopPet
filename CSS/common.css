@@ -1,0 +1,114 @@
+/* ============================================================
+   common.css —— 组件层
+   放「零件」：跨页面、跨模块都能直接拿去用的东西。
+   判定标准一句话：把这段样式搬到另一个页面，还成立吗？
+   成立 → 留在这里；不成立 → 说明它是布局，归 style.css。
+
+   注：目前只有一个页面，零件沿用了 .pet__ 前缀。
+   等第二个页面出现、真的要复用时，再统一改成 .btn / .icon-btn
+   这类通用名即可 —— 那时只改这一层 + 两个页面的 class，不动 style.css。
+   ============================================================ */
+
+/* ==================== 胶囊按钮 ==================== */
+
+/* 设置、清空 这类次级操作 */
+.pet__btn {
+  min-width: 88px;
+  height: 28px;
+  padding: 0 14px;
+  font-size: 12px;
+  font-family: inherit; /* 表单控件不继承字体，必须显式指定 */
+  font-weight: 700;
+  color: var(--text-dim);
+  background: var(--panel);
+  border: 1px solid #ccc;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.pet__btn:hover {
+  background: #f1f3f9;
+  color: var(--accent);
+}
+
+/* 宽度跟随父容器 */
+.pet__btn--wide {
+  width: 100%;
+}
+
+/* ==================== 圆形图标按钮 ==================== */
+
+/* 退出 ✕ / 发送 ↑ 这类只有一个符号的按钮 */
+.pet__icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.12s;
+}
+
+.pet__icon:hover {
+  transform: scale(1.08);
+}
+
+.pet__icon--exit {
+  background: var(--danger);
+}
+
+.pet__icon--send {
+  background: #4d6bfe;
+  font-size: 16px;
+}
+
+/* ==================== 输入框 ==================== */
+
+.pet__input {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.pet__input:focus {
+  border-color: #4d6bfe;
+  box-shadow: 0 0 0 3px rgba(77, 107, 254, 0.15);
+}
+
+/* ==================== 消息气泡 ==================== */
+
+.pet__msg {
+  max-width: 100%;
+  padding: 8px 11px;
+  font-size: 14px;
+  line-height: 1.6;
+  border-radius: var(--radius-sm);
+  word-break: break-word;
+}
+
+/* 我说的话：蓝底、靠右 */
+.pet__msg--me {
+  align-self: flex-end;
+  background: #e5efff;
+  border: 1px solid #c9dcff;
+  text-align: right;
+}
+
+/* 小鲨鱼说的话：白底金边、靠左 */
+.pet__msg--pet {
+  align-self: flex-start;
+  background: var(--panel);
+  border: 1px solid #ffe08a;
+}
