@@ -5,18 +5,55 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>My First DestopPet</title>
-  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="./CSS/style.css" />
 </head>
 
 <body>
-  <main class="home">
+  <!-- ① 首页：只有一个「生成桌宠」按钮 -->
+  <main class="home" id="home">
     <h1 class="home__title">My First DestopPet</h1>
     <p class="home__subtitle">在浏览器里，养一只会聊天的 AI 桌宠</p>
-
     <button id="createPetBtn" class="home__btn" type="button">生成桌宠</button>
   </main>
 
-  <script type="module" src="/main.js"></script>
+  <!-- ② 桌宠舞台：点按钮后出现，用 hidden 类控制显隐 -->
+  <section class="pet hidden" id="pet">
+    <!-- 左边：对话框 -->
+    <div class="pet__bubble" id="bubble">
+      <ul class="pet__log" id="chatLog"></ul>
+    </div>
+
+    <!-- 右边：小鲨鱼 + 底部一排控件 -->
+    <div class="pet__stage">
+      <img class="pet__image" src="./image/shark.svg" alt="小鲨鱼" />
+
+      <div class="pet__controls">
+        <!-- 设置按钮 -->
+        <button class="pet__btn" id="settingsBtn" type="button">⚙ 设置</button>
+
+        <div class="pet__row">
+          <!-- 退出键 -->
+          <button class="pet__icon pet__icon--exit" id="exitBtn" type="button" title="退出">✕</button>
+          <!-- 输入框 -->
+          <input class="pet__input" id="inputBox" type="text" maxlength="200" placeholder="和小鲨鱼说点什么…" />
+          <!-- 输入键（发送） -->
+          <button class="pet__icon pet__icon--send" id="sendBtn" type="button" title="发送">↑</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 设置面板：点「⚙ 设置」才出现 -->
+    <div class="pet__settings hidden" id="settingsPanel">
+      <p class="pet__settings-title">设置</p>
+      <label class="pet__settings-item">
+        <input type="checkbox" id="autoHideToggle" checked />
+        <span>对话 10 秒后自动隐藏</span>
+      </label>
+      <button class="pet__btn pet__btn--wide" id="clearBtn" type="button">清空对话</button>
+    </div>
+  </section>
+
+  <script type="module" src="./JS/main.js"></script>
 </body>
 
 </html>
