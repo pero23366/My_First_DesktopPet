@@ -57,6 +57,21 @@
             <span>对话 10 秒后自动隐藏</span>
           </label>
           <button class="pet__btn pet__btn--wide" id="clearBtn" type="button">清空对话</button>
+
+          <div class="pet__settings-sep"></div>
+
+          <!-- 后端 API 配置：地址存 localStorage，随时可改，不用改代码 -->
+          <p class="pet__settings-title">后端 API</p>
+          <label class="pet__field">
+            <span class="pet__field-label">地址</span>
+            <input class="pet__field-input" id="apiBase" type="text" spellcheck="false"
+              placeholder="http://localhost:5080" />
+          </label>
+          <div class="pet__settings-row">
+            <button class="pet__btn" id="apiTestBtn" type="button">测试连接</button>
+            <button class="pet__btn" id="apiSaveBtn" type="button">保存</button>
+          </div>
+          <p class="pet__api-status" id="apiStatus">未配置</p>
         </div>
       </div>
     </div>

@@ -41,7 +41,7 @@ createPetBtn.addEventListener('click', () => {
 
   inputBox.focus()
 })
-
+/*最后一条消息之后 10 秒才隐藏  */
 exitBtn.addEventListener('click', () => {
   pet.classList.add('hidden')
   settingsPanel.classList.add('hidden')
@@ -92,3 +92,73 @@ function scheduleAutoHide() {
     bubble.classList.add('hidden')
   }, 10000)
 }
+
+// ---------- 7. 后端 API 配置 ----------
+// 地址存在 localStorage 里：改了不用动代码，刷新页面也还在。
+const API_KEY = 'pet.apiBase' // 键名带前缀，避免和别的项目撞车
+const API_DEFAULT = 'http://localhost:5080'
+
+const apiBaseInput = document.querySelector('#apiBase')
+const apiTestBtn = document.querySelector('#apiTestBtn')
+const apiSaveBtn = document.querySelector('#apiSaveBtn')
+const apiStatus = document.querySelector('#apiStatus')
+
+// 统一规整：去掉首尾空格和所有结尾斜杠，否则会拼出 //api/health
+function normalizeBase(raw) {
+  return raw.trim().replace(/\/+$/, '')
+}
+
+function showApiStatus(text, ok) {
+  apiStatus.textContent = text
+  apiStatus.classList.toggle('pet__api-status--ok', ok === true)
+  apiStatus.classList.toggle('pet__api-status--err', ok === false)
+}
+
+// localStorage 只能存字符串，取不到就是 null（不是 undefined）
+const savedBase = localStorage.getItem(API_KEY)
+apiBaseInput.value = savedBase || API_DEFAULT
+if (savedBase) showApiStatus('已保存：' + savedBase)
+
+apiSaveBtn.addEventListener('click', () => {
+  const base = normalizeBase(apiBaseInput.value)
+  if (base === '') {
+    showApiStatus('地址不能为空', false)
+    return
+  }
+  apiBaseInput.value = base // 把规整后的结果回填，让用户看到实际存的是什么
+  localStorage.setItem(API_KEY, base)
+  showApiStatus('已保存', true)
+})
+
+// 测试连接：打一个 /api/health，能通就说明地址和后端 CORS 都对
+apiTestBtn.addEventListener('click', async () => {
+  const base = normalizeBase(apiBaseInput.value)
+  if (base === '') {
+    showApiStatus('地址不能为空', false)
+    return
+  }
+
+  showApiStatus('连接中…', null)
+
+  // fetch 本身不会超时，必须自己拿 AbortController 掐断，否则后端起不来时会一直转
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), 5000)
+
+  try {
+    const res = await fetch(base + '/api/health', { signal: controller.signal })
+    if (!res.ok) {
+      showApiStatus('HTTP ' + res.status + '（地址不对或接口不存在）', false)
+      return
+    }
+    const data = await res.json()
+    showApiStatus('已连接 · ' + (data.status || 'ok'), true)
+  } catch (err) {
+    // AbortError 是我们自己超时掐的，其它一律当网络/跨域问题
+    showApiStatus(
+      err.name === 'AbortError' ? '超时（5 秒），后端没响应' : '连不上，确认后端已启动且允许跨域',
+      false
+    )
+  } finally {
+    clearTimeout(timer) // 成功/失败都要清，不然定时器会一直挂到 5 秒才结束
+  }
+})
