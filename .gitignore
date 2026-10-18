@@ -24,6 +24,9 @@ Thumbs.db
 # 本地日志 / 探测输出
 *.log
 
+# 桌面版发布产物（单个 exe 137MB，超过 GitHub 100MB 限制，只能作为 Release 附件）
+release/
+
 # ---------- .NET / Visual Studio ----------
 # bin、obj 是编译产物，每次 build 都重新生成，绝不能进仓库
 bin/

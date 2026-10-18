@@ -17,6 +17,16 @@
     <h1 class="home__title">My First DestopPet</h1>
     <p class="home__subtitle">在浏览器里，养一只会聊天的 AI 桌宠</p>
     <button id="createPetBtn" class="home__btn" type="button">生成桌宠</button>
+
+    <!-- 桌面版入口（A 方案：网页 + 桌面双入口）。
+         链接直接指 Releases 的 latest，永远自动指向最新版，不用跟着改版本号。
+         target/rel 必须有：新标签打开，且不让新页面拿到 window.opener。 -->
+    <a class="home__download" href="https://github.com/pero23366/My_First_DesktopPet/releases/latest"
+      target="_blank" rel="noopener noreferrer">下载桌面版 · Windows x64</a>
+    <p class="home__download-hint">
+      桌面版可以拖动、可以一直浮在窗口最上层。<br />
+      首次运行若被 Windows 拦截，点「更多信息 → 仍要运行」。
+    </p>
   </main>
 
   <!-- ② 桌宠舞台：点按钮后出现，用 hidden 类控制显隐 -->

@@ -46,6 +46,31 @@
   opacity: 0.9;
 }
 
+/* 桌面版下载入口：次级操作，做成文字链而不是第二个大按钮，
+   避免和「生成桌宠」抢注意力（一屏里两个一样重的按钮 = 没有主次） */
+.home__download {
+  margin-top: 22px;
+  font-size: 14px;
+  color: var(--text-dim);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.15s;
+}
+
+.home__download:hover {
+  color: var(--accent);
+}
+
+.home__download-hint {
+  max-width: 420px;
+  margin-top: 8px;
+  padding: 0 16px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--text-dim);
+  opacity: 0.85;
+}
+
 /* ==================== 桌宠窗口 ==================== */
 
 /* 左对话 + 右鲨鱼 的两栏容器。
