@@ -12,15 +12,14 @@
 </head>
 
 <body>
-  <!-- ① 首页：只有一个「生成桌宠」按钮 -->
+  <!-- ① 首页 -->
   <main class="home" id="home">
     <h1 class="home__title">My First DestopPet</h1>
     <p class="home__subtitle">在浏览器里，养一只会聊天的 AI 桌宠</p>
     <button id="createPetBtn" class="home__btn" type="button">生成桌宠</button>
 
     <!-- 桌面版入口（A 方案：网页 + 桌面双入口）。
-         链接直接指 Releases 的 latest，永远自动指向最新版，不用跟着改版本号。
-         target/rel 必须有：新标签打开，且不让新页面拿到 window.opener。 -->
+         链接指向 Releases 的 latest，永远自动指向最新版，不用跟着改版本号。 -->
     <a class="home__download" href="https://github.com/pero23366/My_First_DesktopPet/releases/latest"
       target="_blank" rel="noopener noreferrer">下载桌面版 · Windows x64</a>
     <p class="home__download-hint">
@@ -29,65 +28,101 @@
     </p>
   </main>
 
-  <!-- ② 桌宠舞台：点按钮后出现，用 hidden 类控制显隐 -->
+  <!-- ② 桌宠舞台 -->
   <section class="pet hidden" id="pet">
     <!-- 左边：对话框 -->
     <div class="pet__bubble" id="bubble">
       <ul class="pet__log" id="chatLog"></ul>
     </div>
 
-    <!-- 右边：小鲨鱼 + 底部一排控件 -->
+    <!-- 右边：形象 + 底部一排控件 -->
     <div class="pet__stage">
-      <!-- 待机动画：3 帧叠在同一位置，靠 CSS 逐个点亮（不换 src，避免闪烁） -->
-      <div class="pet__image" role="img" aria-label="小沃">
-        <img class="pet__frame pet__frame--1" src="./image/idle-1.png" alt="" />
-        <img class="pet__frame pet__frame--2" src="./image/idle-2.png" alt="" />
-        <img class="pet__frame pet__frame--3" src="./image/idle-3.png" alt="" />
-      </div>
+      <!-- 形象只有一张图（用户可上传替换），待机感由 CSS 呼吸动画提供 -->
+      <img class="pet__image" id="petImage" src="./image/idle-1.png" alt="桌宠形象" />
 
       <div class="pet__controls">
-        <!-- 设置按钮 -->
         <button class="pet__btn" id="settingsBtn" type="button">⚙ 设置</button>
 
         <div class="pet__row">
-          <!-- 退出键 -->
           <button class="pet__icon pet__icon--exit" id="exitBtn" type="button" title="退出">✕</button>
-          <!-- 输入框 -->
-          <input class="pet__input" id="inputBox" type="text" maxlength="200" placeholder="和小鲨鱼说点什么…" />
-          <!-- 输入键（发送） -->
+          <input class="pet__input" id="inputBox" type="text" maxlength="200" placeholder="说点什么…" />
           <button class="pet__icon pet__icon--send" id="sendBtn" type="button" title="发送">↑</button>
         </div>
 
-        <!-- 设置面板：点「⚙ 设置」才出现。
-             放在 .pet__controls 内部，是为了让它绝对定位到控件上方，而不是贴着整个页面 -->
+        <!-- 设置面板：绝对定位在控件正上方，内容多了自己滚动 -->
         <div class="pet__settings hidden" id="settingsPanel">
-          <p class="pet__settings-title">设置</p>
+
+          <!-- ========== 形象 ========== -->
+          <p class="pet__settings-title">形象</p>
+          <input class="pet__file" id="imageInput" type="file" accept="image/*" />
+          <div class="pet__settings-row">
+            <span class="pet__hint" id="imageName">默认形象</span>
+            <button class="pet__btn pet__btn--tiny" id="imageResetBtn" type="button">恢复默认</button>
+          </div>
+
+          <div class="pet__settings-sep"></div>
+
+          <!-- ========== 人设 ========== -->
+          <p class="pet__settings-title">人设</p>
+          <label class="pet__field">
+            <span class="pet__field-label">名字</span>
+            <input class="pet__field-input" id="petName" type="text" maxlength="12" placeholder="小沃" />
+          </label>
+
+          <!-- 三个下拉的选项由 persona.ts 用数据生成，HTML 里不写死 -->
+          <div class="pet__field-grid">
+            <label class="pet__field">
+              <span class="pet__field-label">性格</span>
+              <select class="pet__field-input" id="selPersonality"></select>
+            </label>
+            <label class="pet__field">
+              <span class="pet__field-label">语气</span>
+              <select class="pet__field-input" id="selTone"></select>
+            </label>
+            <label class="pet__field">
+              <span class="pet__field-label">称呼</span>
+              <select class="pet__field-input" id="selAddress"></select>
+            </label>
+          </div>
+
+          <button class="pet__btn pet__btn--wide" id="genPromptBtn" type="button">生成提示词</button>
+
+          <label class="pet__field">
+            <span class="pet__field-label">提示词（可直接手改）</span>
+            <textarea class="pet__textarea" id="personaPrompt" rows="6" spellcheck="false"></textarea>
+          </label>
+
+          <div class="pet__settings-sep"></div>
+
+          <!-- ========== API ========== -->
+          <p class="pet__settings-title">DeepSeek API</p>
+          <label class="pet__field">
+            <span class="pet__field-label">API Key（只存在本标签页，关掉即消失）</span>
+            <input class="pet__field-input" id="apiKey" type="password" autocomplete="off" spellcheck="false"
+              placeholder="sk-…" />
+          </label>
+          <label class="pet__field">
+            <span class="pet__field-label">模型</span>
+            <input class="pet__field-input" id="apiModel" type="text" spellcheck="false" placeholder="deepseek-chat" />
+          </label>
+          <button class="pet__btn pet__btn--wide" id="apiTestBtn" type="button">测试 Key</button>
+          <p class="pet__api-status" id="apiStatus">还没填 Key</p>
+
+          <div class="pet__settings-sep"></div>
+
+          <!-- ========== 其他 ========== -->
           <label class="pet__settings-item">
             <input type="checkbox" id="autoHideToggle" checked />
             <span>对话 10 秒后自动隐藏</span>
           </label>
           <button class="pet__btn pet__btn--wide" id="clearBtn" type="button">清空对话</button>
-
-          <div class="pet__settings-sep"></div>
-
-          <!-- 后端 API 配置：地址存 localStorage，随时可改，不用改代码 -->
-          <p class="pet__settings-title">后端 API</p>
-          <label class="pet__field">
-            <span class="pet__field-label">地址</span>
-            <input class="pet__field-input" id="apiBase" type="text" spellcheck="false"
-              placeholder="http://localhost:5080" />
-          </label>
-          <div class="pet__settings-row">
-            <button class="pet__btn" id="apiTestBtn" type="button">测试连接</button>
-            <button class="pet__btn" id="apiSaveBtn" type="button">保存</button>
-          </div>
-          <p class="pet__api-status" id="apiStatus">未配置</p>
+          <button class="pet__btn pet__btn--wide" id="exportBtn" type="button">下载配置（.pet.json）</button>
         </div>
       </div>
     </div>
   </section>
 
-  <script type="module" src="./JS/main.js"></script>
+  <script type="module" src="./JS/main.ts"></script>
 </body>
 
 </html>

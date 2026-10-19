@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    /* 目标：现代浏览器，不需要降级语法 */
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+
+    /* 严格模式全开。第一次会报一堆错，那些错都是真问题，别关。 */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": false,
+
+    /* Vite 负责把 TS 编译成 JS，tsc 只做类型检查，不产出文件 */
+    "noEmit": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["JS"]
+}
