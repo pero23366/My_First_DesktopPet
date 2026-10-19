@@ -122,6 +122,48 @@
     </div>
   </section>
 
+  <!--
+    双击 index.html 时的兜底提示。
+
+    为什么需要它：页面用的是 <script type="module">，而且入口是 .ts 源文件。
+    file:// 协议下浏览器一律按 CORS 拒绝加载模块脚本（控制台报 origin 'null' blocked），
+    而 .ts 浏览器也不会执行。结果就是一片白屏 + 一行看不懂的红字。
+
+    这不是代码写错了，是浏览器的安全策略：模块脚本必须走 http(s)。
+
+    下面这段是普通 <script>（没有 module），file:// 下能执行，
+    所以能把"白屏"变成一句人话。用 npm run dev 打开时它什么都不做。
+  -->
+  <script>
+    (function () {
+      if (location.protocol !== 'file:') return
+
+      var tip = document.createElement('div')
+      tip.setAttribute(
+        'style',
+        'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;' +
+          'justify-content:center;background:#f7f8fc;color:#333;padding:24px;' +
+          'font-family:system-ui,"Microsoft YaHei",sans-serif;text-align:left'
+      )
+      tip.innerHTML =
+        '<div style="max-width:560px;line-height:1.9">' +
+        '<h2 style="margin:0 0 12px;font-size:18px">需要用本地服务器打开</h2>' +
+        '<p style="margin:0 0 14px;font-size:14px;color:#555">' +
+        '你打开的地址是 <code>file://</code>。浏览器禁止在 file:// 下加载 ES Module，' +
+        '而 TypeScript 也需要先编译才能执行 —— 所以脚本被 CORS 拦掉了，页面看起来是空的。' +
+        '</p>' +
+        '<p style="margin:0 0 8px;font-size:14px;color:#555">正确做法（任选其一）：</p>' +
+        '<ol style="margin:0;padding-left:22px;font-size:14px;color:#555">' +
+        '<li>双击项目根目录的 <b>启动.bat</b></li>' +
+        '<li>或在项目根目录执行 <code style="background:#eef0f6;padding:2px 6px;' +
+        'border-radius:4px">npm run dev</code>，再访问 http://localhost:5173</li>' +
+        '</ol>' +
+        '</div>'
+
+      document.body.append(tip)
+    })()
+  </script>
+
   <script type="module" src="./JS/main.ts"></script>
 </body>
 
