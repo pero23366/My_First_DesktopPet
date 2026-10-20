@@ -129,6 +129,8 @@
             <span class="pet__field-label">收起时间：<b id="autoHideValue">20</b> 秒</span>
             <input class="pet__range" id="autoHideRange" type="range" min="10" max="60" step="5" />
           </label>
+          <!-- 风险提示：紧跟在滑条下面，勾上之后会变红，避免"设了才知道后果" -->
+          <p class="pet__warn" id="autoHideWarn">注意，网页版如果选了此项，对话消失后，不可找回！！！</p>
           <button class="pet__btn pet__btn--wide" id="clearBtn" type="button">清空对话</button>
           <button class="pet__btn pet__btn--wide" id="exportBtn" type="button">下载配置（.pet.json）</button>
         </div>

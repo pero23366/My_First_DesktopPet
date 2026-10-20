@@ -225,6 +225,9 @@ function applyAutoHide(): void {
   // 没勾上时滑块置灰：能拖但没效果，比直接藏起来更好懂
   ui.dom.autoHideRange.disabled = !enabled
 
+  // 提示语一直在，勾上才变警示色 —— 让用户在按下勾之前就看到后果
+  ui.setAutoHideWarnActive(enabled)
+
   ui.setAutoHideEnabled(enabled)
   ui.setAutoHideDelay(seconds)
 }

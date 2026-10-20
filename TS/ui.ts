@@ -36,6 +36,7 @@ export const dom = {
   autoHideToggle: must<HTMLInputElement>('#autoHideToggle'),
   autoHideRange: must<HTMLInputElement>('#autoHideRange'),
   autoHideValue: must<HTMLElement>('#autoHideValue'),
+  autoHideWarn: must<HTMLElement>('#autoHideWarn'),
   clearBtn: must<HTMLButtonElement>('#clearBtn'),
   exportBtn: must<HTMLButtonElement>('#exportBtn'),
 
@@ -185,6 +186,11 @@ export function setAutoHideEnabled(enabled: boolean): void {
 export function setAutoHideDelay(seconds: number): void {
   autoHideDelayMs = seconds * 1000
   if (autoHideEnabled) scheduleAutoHide()
+}
+
+/** 提示语常驻，只在开启后加一档警示色 —— 不靠隐藏来控制，避免用户事后才发现 */
+export function setAutoHideWarnActive(active: boolean): void {
+  dom.autoHideWarn.classList.toggle('pet__warn--active', active)
 }
 
 export function scheduleAutoHide(): void {

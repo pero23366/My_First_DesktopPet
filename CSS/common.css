@@ -262,3 +262,28 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/*
+  风险提示：常驻显示，只是强弱不同。
+  不做成"勾上才出现"—— 那样用户在按下勾之前根本不知道有这回事，
+  而这条提示的价值恰恰在于"设之前就看到"。
+*/
+.pet__warn {
+  padding: 6px 8px;
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--text-dim);
+  background: #f4f5f9;
+  border-left: 3px solid var(--border);
+  border-radius: var(--radius-sm);
+  /* 老浏览器忽略这条；支持的会把"！！！"和上一行凑一起，少断一次 */
+  text-wrap: pretty;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+}
+
+/* 真正开启之后才转成警示色 */
+.pet__warn--active {
+  color: #b3541e;
+  background: #fff5ea;
+  border-left-color: #e08a3c;
+}
