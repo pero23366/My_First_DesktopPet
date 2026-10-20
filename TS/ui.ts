@@ -3,7 +3,7 @@
 // 集中管理 DOM，提供"改界面"的小函数。不发请求、不做决策。
 // ============================================================
 
-import { AUTO_HIDE_DELAY_MS } from './config'
+import { AUTO_HIDE_DEFAULT_S } from './config'
 import type { BubbleFrom } from './types'
 
 /**
@@ -31,7 +31,11 @@ export const dom = {
 
   settingsBtn: must<HTMLButtonElement>('#settingsBtn'),
   settingsPanel: must<HTMLElement>('#settingsPanel'),
+  settingsCloseBtn: must<HTMLButtonElement>('#settingsCloseBtn'),
+  bubbleCloseBtn: must<HTMLButtonElement>('#bubbleCloseBtn'),
   autoHideToggle: must<HTMLInputElement>('#autoHideToggle'),
+  autoHideRange: must<HTMLInputElement>('#autoHideRange'),
+  autoHideValue: must<HTMLElement>('#autoHideValue'),
   clearBtn: must<HTMLButtonElement>('#clearBtn'),
   exportBtn: must<HTMLButtonElement>('#exportBtn'),
 
@@ -62,7 +66,7 @@ export function addMessage(text: string, from: BubbleFrom): HTMLLIElement {
   li.textContent = text // 用 textContent：用户输入不会被当成 HTML 解析
 
   dom.chatLog.append(li)
-  dom.bubble.classList.remove('hidden')
+  showBubble() // 有新消息就把气泡拉回来（哪怕用户刚手动收起过）
   dom.chatLog.scrollTop = dom.chatLog.scrollHeight
 
   return li
@@ -97,13 +101,45 @@ export function setBusy(busy: boolean): void {
 export function showPet(): void {
   dom.home.classList.add('hidden')
   dom.pet.classList.remove('hidden')
+  showBubble() // 回到舞台时对话框一定在 —— 它是这个页面的主体，不该继承上次的收起状态
 }
 
 export function showHome(): void {
   dom.pet.classList.add('hidden')
-  dom.settingsPanel.classList.add('hidden')
+  closeSettings()
+  closeBubble()
   dom.home.classList.remove('hidden')
   clearInput()
+}
+
+// ---------- 设置面板开合 ----------
+
+export function openSettings(): void {
+  dom.settingsPanel.classList.remove('hidden')
+}
+
+export function closeSettings(): void {
+  dom.settingsPanel.classList.add('hidden')
+}
+
+export function toggleSettings(): void {
+  dom.settingsPanel.classList.toggle('hidden')
+}
+
+export function isSettingsOpen(): boolean {
+  return !dom.settingsPanel.classList.contains('hidden')
+}
+
+// ---------- 对话气泡显隐 ----------
+
+export function showBubble(): void {
+  dom.bubble.classList.remove('hidden')
+}
+
+/** 收起气泡，但要顺手撤掉定时器 —— 否则它会在已经藏起来之后再多"藏"一次 */
+export function closeBubble(): void {
+  cancelAutoHide()
+  dom.bubble.classList.add('hidden')
 }
 
 // ---------- 形象 ----------
@@ -125,14 +161,30 @@ export function showStatus(text: string, ok: boolean | null): void {
   dom.apiStatus.classList.toggle('pet__api-status--err', ok === false)
 }
 
-// ---------- 气泡自动隐藏（对标 WPF 的 DispatcherTimer）----------
+// ---------- 气泡自动收起（对标 WPF 的 DispatcherTimer）----------
 
+/**
+ * 默认「不收起」：对话框是桌宠的主体，一进来就看到历史才符合直觉。
+ * 想让它自己收起来，去设置里勾上并拖时长（10~60 秒）。
+ */
+let autoHideEnabled = false
+let autoHideDelayMs = AUTO_HIDE_DEFAULT_S * 1000
 let hideTimer: number | null = null
-let autoHideEnabled = true
 
 export function setAutoHideEnabled(enabled: boolean): void {
   autoHideEnabled = enabled
-  if (!enabled) cancelAutoHide()
+  if (!enabled) {
+    cancelAutoHide()
+    return
+  }
+  // 刚打开就按新时长排一次，不用等用户再发一条消息才生效
+  scheduleAutoHide()
+}
+
+/** 改时长。正在计时的话立刻按新时长重排，否则用户会以为"改了没用" */
+export function setAutoHideDelay(seconds: number): void {
+  autoHideDelayMs = seconds * 1000
+  if (autoHideEnabled) scheduleAutoHide()
 }
 
 export function scheduleAutoHide(): void {
@@ -141,7 +193,7 @@ export function scheduleAutoHide(): void {
 
   hideTimer = window.setTimeout(() => {
     dom.bubble.classList.add('hidden')
-  }, AUTO_HIDE_DELAY_MS)
+  }, autoHideDelayMs)
 }
 
 export function cancelAutoHide(): void {

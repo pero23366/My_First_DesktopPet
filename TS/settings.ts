@@ -3,10 +3,10 @@
 // 面板开合、Key / 模型、人设编辑、形象上传、导出配置。
 // ============================================================
 
-import { CONFIG_FORMAT, IMAGE_MAX_BYTES } from './config'
+import { CONFIG_FORMAT, IMAGE_MAX_BYTES, clampAutoHideSeconds } from './config'
 import { testKey } from './api'
 import { PERSONA_GROUPS, buildPrompt, defaultPersona } from './persona'
-import { saveKey, saveModel, savePersona, store } from './store'
+import { saveAutoHide, saveKey, saveModel, savePersona, store } from './store'
 import { clearHistory } from './chat'
 import type { PetConfigFile, PersonaOptions } from './types'
 import * as ui from './ui'
@@ -15,14 +15,27 @@ import * as ui from './ui'
 const DEFAULT_IMAGE = './image/idle-1.png'
 
 export function initSettings(): void {
-  ui.dom.settingsBtn.addEventListener('click', () => {
-    ui.dom.settingsPanel.classList.toggle('hidden')
-  })
-
+  initPanelOpenClose()
   initApiSection()
   initPersonaSection()
   initImageSection()
   initMiscSection()
+}
+
+// ---------- 面板开合 ----------
+
+function initPanelOpenClose(): void {
+  ui.dom.settingsBtn.addEventListener('click', () => ui.toggleSettings())
+
+  // 有了这个关闭键，「⚙ 设置」就退回它该有的身份：打开，而不用兼职关闭
+  ui.dom.settingsCloseBtn.addEventListener('click', () => ui.closeSettings())
+
+  // Esc 关面板：弹层类界面的默认期待，不加会被用户当成 bug
+  document.addEventListener('keydown', (event: KeyboardEvent) => {
+    if (event.key !== 'Escape') return
+    if (!ui.isSettingsOpen()) return
+    ui.closeSettings()
+  })
 }
 
 // ---------- API：Key + 模型 ----------
@@ -129,6 +142,7 @@ function regeneratePrompt(): void {
 
   const name = ui.dom.petName.value.trim() || '小沃'
   const prompt = buildPrompt(name, options)
+  
 
   ui.dom.personaPrompt.value = prompt
   savePersona({ name, options, prompt })
@@ -176,10 +190,24 @@ function initImageSection(): void {
 // ---------- 其他 ----------
 
 function initMiscSection(): void {
+  // 把存下来的设置灌回控件（默认：不收起、20 秒）
+  ui.dom.autoHideToggle.checked = store.autoHide.enabled
+  ui.dom.autoHideRange.value = String(store.autoHide.seconds)
+  ui.dom.autoHideValue.textContent = String(store.autoHide.seconds)
+  applyAutoHide()
+
   ui.dom.autoHideToggle.addEventListener('change', () => {
-    ui.setAutoHideEnabled(ui.dom.autoHideToggle.checked)
+    saveAutoHide({ enabled: ui.dom.autoHideToggle.checked })
+    applyAutoHide()
   })
-  ui.setAutoHideEnabled(ui.dom.autoHideToggle.checked)
+
+  // input 而不是 change：拖滑块时数字要实时跟着走
+  ui.dom.autoHideRange.addEventListener('input', () => {
+    const seconds = clampAutoHideSeconds(Number(ui.dom.autoHideRange.value))
+    ui.dom.autoHideValue.textContent = String(seconds)
+    saveAutoHide({ seconds })
+    applyAutoHide()
+  })
 
   ui.dom.clearBtn.addEventListener('click', () => {
     ui.clearMessages()
@@ -188,6 +216,17 @@ function initMiscSection(): void {
   })
 
   ui.dom.exportBtn.addEventListener('click', onExport)
+}
+
+/** 一份真相（store）灌到两个控件 + 两个定时器参数，避免三处各记一份 */
+function applyAutoHide(): void {
+  const { enabled, seconds } = store.autoHide
+
+  // 没勾上时滑块置灰：能拖但没效果，比直接藏起来更好懂
+  ui.dom.autoHideRange.disabled = !enabled
+
+  ui.setAutoHideEnabled(enabled)
+  ui.setAutoHideDelay(seconds)
 }
 
 function onExport(): void {

@@ -25,6 +25,8 @@ ui.dom.createPetBtn.addEventListener('click', () => {
   // 只在第一次登场时打招呼，来回切不重复刷屏
   if (ui.dom.chatLog.children.length === 0) {
     ui.addMessage('我在这儿。想聊点什么？', 'pet')
+    // 招呼也算一次「有新消息」：开了自动收起的话，从这一刻开始计时
+    ui.scheduleAutoHide()
   }
 
   ui.focusInput()
@@ -32,5 +34,4 @@ ui.dom.createPetBtn.addEventListener('click', () => {
 
 ui.dom.exitBtn.addEventListener('click', () => {
   ui.showHome()
-  ui.cancelAutoHide()
 })

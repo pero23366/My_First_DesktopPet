@@ -32,6 +32,8 @@
   <section class="pet hidden" id="pet">
     <!-- 左边：对话框 -->
     <div class="pet__bubble" id="bubble">
+      <!-- 收起键：只藏气泡，输入行还在；再发一句话它会自己回来 -->
+      <button class="pet__icon pet__icon--bubble-close" id="bubbleCloseBtn" type="button" title="收起对话">✕</button>
       <ul class="pet__log" id="chatLog"></ul>
     </div>
 
@@ -49,8 +51,14 @@
           <button class="pet__icon pet__icon--send" id="sendBtn" type="button" title="发送">↑</button>
         </div>
 
-        <!-- 设置面板：绝对定位在控件正上方，内容多了自己滚动 -->
+        <!-- 设置面板：居中弹层，内容多了自己滚动 -->
         <div class="pet__settings hidden" id="settingsPanel">
+
+          <!-- 顶栏：标题 + 明确的关闭键（不再靠再点一次 ⚙ 去猜） -->
+          <div class="pet__settings-head">
+            <p class="pet__settings-title">设置</p>
+            <button class="pet__icon pet__icon--close" id="settingsCloseBtn" type="button" title="关闭">✕</button>
+          </div>
 
           <!-- ========== 形象 ========== -->
           <p class="pet__settings-title">形象</p>
@@ -111,9 +119,15 @@
           <div class="pet__settings-sep"></div>
 
           <!-- ========== 其他 ========== -->
+          <!-- 默认不收起：对话框是桌宠的主体，一进来就该看到历史。
+               想让它自己让位，勾上再把时长拖到 10~60 秒。 -->
           <label class="pet__settings-item">
-            <input type="checkbox" id="autoHideToggle" checked />
-            <span>对话 10 秒后自动隐藏</span>
+            <input type="checkbox" id="autoHideToggle" />
+            <span>对话自动收起（默认不收起）</span>
+          </label>
+          <label class="pet__field">
+            <span class="pet__field-label">收起时间：<b id="autoHideValue">20</b> 秒</span>
+            <input class="pet__range" id="autoHideRange" type="range" min="10" max="60" step="5" />
           </label>
           <button class="pet__btn pet__btn--wide" id="clearBtn" type="button">清空对话</button>
           <button class="pet__btn pet__btn--wide" id="exportBtn" type="button">下载配置（.pet.json）</button>
@@ -164,7 +178,7 @@
     })()
   </script>
 
-  <script type="module" src="./JS/main.ts"></script>
+  <script type="module" src="./TS/main.ts"></script>
 </body>
 
 </html>

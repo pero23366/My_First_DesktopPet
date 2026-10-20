@@ -89,6 +89,7 @@
 /* ---------- 左：对话框 ---------- */
 
 .pet__bubble {
+  position: relative; /* 气泡上的收起键以它为定位基准 */
   display: flex;
   width: 300px;
   height: 340px;
@@ -108,6 +109,8 @@
   flex-direction: column;
   gap: 10px;
   list-style: none;
+  /* 顶部让出一条，消息不会钻到收起键底下 */
+  padding-top: 18px;
   padding-right: 4px;
 }
 
@@ -176,6 +179,22 @@
   font-size: 13px;
   font-weight: 700;
   color: var(--text-dim);
+}
+
+/* 面板顶栏：标题在左、关闭键在右，底下一条线把它和内容分开 */
+.pet__settings-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #e3e6ef;
+}
+
+/* 顶栏的标题是面板名，比各分区小标题重一档 */
+.pet__settings-head .pet__settings-title {
+  font-size: 14px;
+  color: var(--text);
 }
 
 .pet__settings-item {
@@ -258,6 +277,8 @@
   color: #d8443c;
 }
 
+
+/*多端适配*/
 /* ==================== 窄屏 ==================== */
 
 @media (max-width: 680px) {

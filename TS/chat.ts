@@ -18,6 +18,10 @@ let isSending = false
 export function initChat(): void {
   ui.dom.sendBtn.addEventListener('click', send)
 
+  // 收起对话：只是把气泡藏起来，输入行还在。再说一句话它会自己回来
+  // （addMessage 里会 showBubble），所以不需要额外做"重新打开"的按钮。
+  ui.dom.bubbleCloseBtn.addEventListener('click', () => ui.closeBubble())
+
   ui.dom.inputBox.addEventListener('keydown', (event: KeyboardEvent) => {
     // 中文输入法还在选词时按回车，那是"上屏"不是"发送"
     if (event.isComposing) return
@@ -41,7 +45,7 @@ async function send(): Promise<void> {
   // 没填 Key 就别白跑一次请求，直接把用户送到该去的地方
   if (!store.apiKey) {
     ui.addMessage('（我还没拿到说话的能力，去设置里填一下 Key）', 'pet')
-    ui.dom.settingsPanel.classList.remove('hidden')
+    ui.openSettings()
     ui.focusInput()
     return
   }

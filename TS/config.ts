@@ -34,8 +34,29 @@ export const CHAT_TIMEOUT_MS = 30000
 /** 测试 Key 的超时，比对话短一些。 */
 export const TEST_TIMEOUT_MS = 15000
 
-/** 气泡自动隐藏延迟，对标前作 WPF 的 10 秒 DispatcherTimer。 */
-export const AUTO_HIDE_DELAY_MS = 10000
+/**
+ * 气泡自动收起：范围 10~60 秒，默认 20 秒。
+ * 前作 WPF 把它写死成 10 秒，用户既改不了、也没法关掉，所以这里做成可调。
+ * 注意默认是「不收起」—— 见 store.ts 的 autoHide.enabled，默认 false。
+ */
+export const AUTO_HIDE_MIN_S = 10
+export const AUTO_HIDE_MAX_S = 60
+export const AUTO_HIDE_STEP_S = 5
+export const AUTO_HIDE_DEFAULT_S = 20
+
+/** 收起开关 + 秒数，一起存 localStorage。它不是秘密，跨会话保留才符合预期。 */
+export const AUTO_HIDE_STORAGE = 'pet.autoHide'
+
+/**
+ * 把外部传进来的秒数夹回合法区间并取整。
+ * 为什么不是只在 UI 上限制：localStorage 是用户可以手改的，
+ * 存进去个 0 或 9999，不夹的话定时器就疯了。
+ */
+export function clampAutoHideSeconds(value: number): number {
+  if (!Number.isFinite(value)) return AUTO_HIDE_DEFAULT_S
+  const rounded = Math.round(value)
+  return Math.min(AUTO_HIDE_MAX_S, Math.max(AUTO_HIDE_MIN_S, rounded))
+}
 
 /** 用户上传形象的体积上限（原始文件）。超过就提示，不去猜用户想不想等。 */
 export const IMAGE_MAX_BYTES = 8 * 1024 * 1024
