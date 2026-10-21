@@ -24,7 +24,14 @@ Topmost="True"：永远保持在所有窗口的最上层-->
         AllowsTransparency="True"
         Background="Transparent"
         Topmost="True"
-        ShowInTaskbar="False">
+        ShowInTaskbar="False"
+        ResizeMode="NoResize"><!--
+        ResizeMode="NoResize" 是拿来治「铺满屏幕就卡死」的，不是审美选择：
+        AllowsTransparency=True 会把窗口变成分层窗口，WPF 只能走软件渲染。
+        700×450 时 CPU 还扛得住，一旦被 Aero Snap 贴顶、或者 Win+↑ 拉成全屏，
+        每帧要在 CPU 上重绘整块屏幕（还有 DropShadowEffect），界面就冻住了。
+        无边框窗口没有标题栏，但拖到屏幕上边缘仍然会被贴顶最大化 —— 所以必须从源头禁掉。
+        NoResize 同时关掉最大化框和贴顶最大化；代码里还有一道 StateChanged 兜底。-->
 
     <Grid>
         <!-- 定义两列：左边放回复框，右边放小沃 -->
@@ -129,51 +136,70 @@ Topmost="True"：永远保持在所有窗口的最上层-->
             </Border>
         </Grid>
 
-        <!-- ================== 底部：输入区（跨越两列） ================== -->
-        <StackPanel Grid.ColumnSpan="2" 
-                    VerticalAlignment="Bottom" HorizontalAlignment="Left" 
+        <!-- ================== 底部：功能栏（整条可收起） ================== -->
+        <StackPanel x:Name="FunctionBar" Grid.ColumnSpan="2"
+                    VerticalAlignment="Bottom" HorizontalAlignment="Left"
                     Margin="316,0,0,48">
 
-            <!-- 模型切换按钮 -->
-            <Button x:Name="ModelToggleButton" Content="聊天" 
-                    Width="80" Height="25" Margin="0,0,0,8"
-                   
-                    Background="White" Foreground="Black"
-                    BorderBrush="#CCCCCC" BorderThickness="1"
-                    FontSize="12" FontWeight="Bold" Cursor="Hand"
-                    HorizontalAlignment="Center">
-                <Button.Template>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                BorderBrush="{TemplateBinding BorderBrush}" 
-                                BorderThickness="1" CornerRadius="12">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Button.Template>
-            </Button>
+            <!-- 第一行：聊天/思考 + 设置 + 收起键（▾） -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,8">
 
-            <!-- ⭐ 新增：设置按钮（放在模型切换按钮的下面，或者你找个合适的位置） -->
-            <Button x:Name="SettingsButton" Content="⚙ 设置" 
-        Width="80" Height="25" Margin="0,0,0,8"
-        Background="White" Foreground="#666666"
-        BorderBrush="#CCCCCC" BorderThickness="1"
-        FontSize="12" FontWeight="Bold" Cursor="Hand"
-        HorizontalAlignment="Center"
-        Click="SettingsButton_Click">
-                <Button.Template>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                    BorderBrush="{TemplateBinding BorderBrush}" 
-                    BorderThickness="1" CornerRadius="12">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Button.Template>
-            </Button>
+                <!-- 模型切换按钮 -->
+                <Button x:Name="ModelToggleButton" Content="聊天"
+                        Width="80" Height="25"
+                        Background="White" Foreground="Black"
+                        BorderBrush="#CCCCCC" BorderThickness="1"
+                        FontSize="12" FontWeight="Bold" Cursor="Hand">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="1" CornerRadius="12">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
 
-            <!-- 输入区一行 -->
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <!-- 设置按钮 -->
+                <Button x:Name="SettingsButton" Content="⚙ 设置"
+                        Width="80" Height="25" Margin="6,0,0,0"
+                        Background="White" Foreground="#666666"
+                        BorderBrush="#CCCCCC" BorderThickness="1"
+                        FontSize="12" FontWeight="Bold" Cursor="Hand"
+                        Click="SettingsButton_Click">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="1" CornerRadius="12">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+
+                <!-- 收起键：就在设置旁边。收起后只剩它自己（变成 ▴） -->
+                <Button x:Name="CollapseButton" Content="▾"
+                        Width="22" Height="25" Margin="6,0,0,0"
+                        Background="White" Foreground="#6B7185"
+                        BorderBrush="#CCCCCC" BorderThickness="1"
+                        FontSize="11" FontWeight="Bold" Cursor="Hand"
+                        ToolTip="收起功能栏" Click="CollapseButton_Click">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="1" CornerRadius="12">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </StackPanel>
+
+            <!-- 第二行：退出 / 输入框 / 发送 -->
+            <StackPanel x:Name="InputRow" Orientation="Horizontal" HorizontalAlignment="Center">
                 <!-- 退出按钮 -->
                 <Button x:Name="ExitButton" Content="✕" Width="30" Height="30" Margin="0,0,10,0"
                         Foreground="White" FontSize="12" FontWeight="Bold" 
@@ -201,8 +227,6 @@ Topmost="True"：永远保持在所有窗口的最上层-->
                         </ControlTemplate>
                     </Button.Template>
                 </Button>
-
-                <!-- 发送按钮 -->
             </StackPanel>
         </StackPanel>
     </Grid>

@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
@@ -20,6 +21,10 @@ namespace AI桌宠_V1._0._0
     /// </summary>
     public partial class MainWindow : Window
     {
+        /// <summary>缩放前（×1.0）的窗口尺寸。真正的大小 = 这个值 × PetSettings.PetScale。</summary>
+        private const double BaseWidth = 700;
+        private const double BaseHeight = 450;
+
         private readonly DeepSeekService _aiService = new DeepSeekService();
         private readonly PetSettings _settings;
         private readonly ConversationStore _store;
@@ -27,6 +32,7 @@ namespace AI桌宠_V1._0._0
         private bool _isReasonerMode;
         private string _currentModel = "deepseek-chat";
         private bool _isCompressing;
+        private bool _functionBarCollapsed;
 
         private readonly DispatcherTimer _bubbleTimer;
         private readonly DispatcherTimer _replyHideTimer;
@@ -85,6 +91,12 @@ namespace AI桌宠_V1._0._0
             // ---------- 4. 事件 ----------
             this.KeyDown += Window_KeyDown;
 
+            // 全屏卡死的兜底：万一有哪条路（脚本、贴顶、Win+↑）把窗口变成了最大化，立刻打回正常
+            StateChanged += (s, e) =>
+            {
+                if (WindowState != WindowState.Normal) WindowState = WindowState.Normal;
+            };
+
             // 鼠标左键拖动窗口：无边框桌宠的核心魔法
             this.MouseLeftButtonDown += (s, e) =>
             {
@@ -127,19 +139,57 @@ namespace AI桌宠_V1._0._0
             _aiService.SetApiKey(_settings.ApiKey);
 
             // 模型：按钮文案与颜色跟着走
-            _isReasonerMode = string.Equals(_settings.Model, "deepseek-reasoner", StringComparison.OrdinalIgnoreCase);
-            _currentModel = _isReasonerMode ? "deepseek-reasoner" : "deepseek-chat";
-            ModelToggleButton.Content = _isReasonerMode ? "思考" : "聊天";
-            ModelToggleButton.Foreground = _isReasonerMode
-                ? System.Windows.Media.Brushes.RoyalBlue
-                : System.Windows.Media.Brushes.Black;
+            ApplyModelUi();
 
             // 自动收起：默认关闭（对齐网页版需求 4）
             _replyHideTimer.Stop();
             _replyHideTimer.Interval = TimeSpan.FromSeconds(_settings.AutoHideSeconds);
 
+            // 桌宠大小
+            ApplyPetScale();
+
             // 形象：自定义图优先，有自定义图就不播三帧动画
             ApplyImage();
+        }
+
+        /// <summary>
+        /// 主界面的「聊天 / 思考」按钮是设置的唯一真相来源之一：
+        /// 点按钮会写回 PetSettings.Model，设置面板改完也会回到这里重刷文案。
+        /// </summary>
+        private void ApplyModelUi()
+        {
+            _isReasonerMode = string.Equals(_settings.Model, "deepseek-reasoner", StringComparison.OrdinalIgnoreCase);
+            _currentModel = _isReasonerMode ? "deepseek-reasoner" : "deepseek-chat";
+
+            ModelToggleButton.Content = _isReasonerMode ? "思考" : "聊天";
+            ModelToggleButton.Foreground = _isReasonerMode
+                ? System.Windows.Media.Brushes.RoyalBlue
+                : System.Windows.Media.Brushes.Black;
+        }
+
+        /// <summary>
+        /// 整窗等比缩放（设置里的 50%~150%）。
+        ///
+        /// 用 LayoutTransform 而不是 RenderTransform：LayoutTransform 参与布局，
+        /// 窗口跟着撑大到 700×scale，文字是矢量重排、不会糊；RenderTransform 只是"画大"，
+        /// 内容会被窗口边缘裁掉，字也糊。
+        /// </summary>
+        private void ApplyPetScale()
+        {
+            double scale = _settings.PetScale;
+
+            // 屏幕装不下就别硬放：状态栏被顶到屏幕外，用户就再也点不回来了
+            Rect area = SystemParameters.WorkArea;
+            double fitScale = Math.Min((area.Width - 40) / BaseWidth, (area.Height - 40) / BaseHeight);
+            if (fitScale > 0 && scale > fitScale) scale = fitScale;
+
+            if (Content is FrameworkElement root)
+            {
+                root.LayoutTransform = new ScaleTransform(scale, scale);
+            }
+
+            Width = BaseWidth * scale;
+            Height = BaseHeight * scale;
         }
 
         private void ApplyImage()
@@ -257,19 +307,37 @@ namespace AI桌宠_V1._0._0
             OpenSettings();
         }
 
+        /// <summary>
+        /// 功能栏收起 / 展开。
+        /// 用 Hidden 而不是 Collapsed：Hidden 还占着布局位置，
+        /// 所以收起后 ▾ 原地变成 ▴，不会跳到别的地方去。
+        /// </summary>
+        private void CollapseButton_Click(object sender, RoutedEventArgs e)
+        {
+            _functionBarCollapsed = !_functionBarCollapsed;
+
+            var visibility = _functionBarCollapsed ? Visibility.Hidden : Visibility.Visible;
+            ModelToggleButton.Visibility = visibility;
+            SettingsButton.Visibility = visibility;
+            InputRow.Visibility = visibility;
+
+            CollapseButton.Content = _functionBarCollapsed ? "▴" : "▾";
+            CollapseButton.ToolTip = _functionBarCollapsed ? "展开功能栏" : "收起功能栏";
+
+            // 收起来的时候把焦点交还给窗口，免得看不见的输入框还在吃键盘
+            if (_functionBarCollapsed) Focus();
+        }
+
         private void ModelToggleButton_Click(object sender, RoutedEventArgs e)
         {
             _isReasonerMode = !_isReasonerMode;
-            _currentModel = _isReasonerMode ? "deepseek-reasoner" : "deepseek-chat";
 
-            ModelToggleButton.Content = _isReasonerMode ? "思考" : "聊天";
-            ModelToggleButton.Foreground = _isReasonerMode
-                ? System.Windows.Media.Brushes.RoyalBlue
-                : System.Windows.Media.Brushes.Black;
-
-            // 这个按钮也算改设置：存下来，重开程序还是你上次选的模型
-            _settings.Model = _currentModel;
+            // 这个按钮也算改设置：存下来，重开程序还是你上次选的模型。
+            // 走 PetSettings 而不是改局部变量，设置面板打开的才是同一个值。
+            _settings.Model = _isReasonerMode ? "deepseek-reasoner" : "deepseek-chat";
             _settings.Save();
+
+            ApplyModelUi();
         }
 
         // ==================== 发送 ====================

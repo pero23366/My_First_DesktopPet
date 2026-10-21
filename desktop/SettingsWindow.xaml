@@ -10,7 +10,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="小沃 · 设置"
-        Width="430" Height="660"
+        Width="430" Height="700"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
         ShowInTaskbar="False"
@@ -43,6 +43,16 @@
                         </StackPanel>
                         <TextBlock Text="网页版设置面板 →「下载配置（.pet.json）」，把那个文件拖进来即可。"
                                    FontSize="11" Foreground="#8A90A2" TextWrapping="Wrap" Margin="0,8,0,0"/>
+
+                        <!-- 桌宠大小：整窗等比缩放，不是只放大那张图 -->
+                        <TextBlock x:Name="PetScaleLabel" Text="桌宠大小：100%"
+                                   FontSize="11" Foreground="#6B7185" Margin="0,12,0,0"/>
+                        <Slider x:Name="PetScaleSlider" Minimum="50" Maximum="150"
+                                SmallChange="10" LargeChange="10" TickFrequency="10"
+                                IsSnapToTickEnabled="True" Value="100"
+                                ValueChanged="PetScaleSlider_ValueChanged"/>
+                        <TextBlock Text="整块界面一起缩放，屏幕装不下时会自动压到刚好放得下。"
+                                   FontSize="11" Foreground="#8A90A2" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
 
@@ -80,9 +90,11 @@
 
                         <TextBlock Text="模型" FontSize="11" Foreground="#6B7185" Margin="0,10,0,0"/>
                         <ComboBox x:Name="ModelCombo" Height="26" Margin="0,4,0,0">
-                            <ComboBoxItem Content="deepseek-chat（快、便宜）" Tag="deepseek-chat"/>
-                            <ComboBoxItem Content="deepseek-reasoner（会思考、慢）" Tag="deepseek-reasoner"/>
+                            <ComboBoxItem Content="普通聊天 · deepseek-chat（快、便宜）" Tag="deepseek-chat"/>
+                            <ComboBoxItem Content="深度思考 · deepseek-reasoner（会想、慢）" Tag="deepseek-reasoner"/>
                         </ComboBox>
+                        <TextBlock Text="和主界面的「聊天 / 思考」是同一个开关：这边改了，那边按钮跟着变。"
+                                   FontSize="11" Foreground="#8A90A2" TextWrapping="Wrap" Margin="0,6,0,0"/>
 
                         <TextBlock x:Name="ApiStateText" Text="还没填 Key"
                                    FontSize="11" Foreground="#8A90A2" TextWrapping="Wrap" Margin="0,8,0,0"/>
@@ -105,11 +117,8 @@
                                 IsSnapToTickEnabled="True" Value="20"
                                 ValueChanged="AutoHideSlider_ValueChanged"/>
 
-                        <!-- 网页版需求 5 的同一条提示，一个字都不改，保证两端口径一致 -->
-                        <TextBlock x:Name="AutoHideWarn"
-                                   Text="注意，网页版如果选了此项，对话消失后，不可找回！！！"
-                                   FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0"
-                                   Foreground="#8A90A2" Padding="6,4"/>
+                        <!-- 桌面版不需要网页版那句"对话消失后不可找回"：
+                             桌面版的气泡只是藏起来，历史记录窗口里随时能翻到。 -->
 
                         <Button x:Name="ClearHistoryButton" Content="清空对话记录"
                                 Height="26" Padding="10,0" Margin="0,12,0,0"

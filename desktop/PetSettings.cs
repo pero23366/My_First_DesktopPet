@@ -19,6 +19,17 @@ namespace AI桌宠_V1._0._0
         public const int AutoHideMinSeconds = 10;
         public const int AutoHideMaxSeconds = 60;
 
+        // 桌宠大小：0.5 = 一半，1.5 = 一倍半。上限不敢再大，
+        // 因为窗口是整套 UI 等比放大，1.5 倍已经 1050×675，再大会顶出屏幕。
+        public const double PetScaleMin = 0.5;
+        public const double PetScaleMax = 1.5;
+
+        /// <summary>
+        /// 人设版本。老文件里没有这个字段，反序列化后就是 0 —— 正好当"还没检查过"。
+        /// 注意别给它写字段初始值，否则老文件会被当成新版本，迁移就失效了。
+        /// </summary>
+        public int PersonaVersion { get; set; }
+
         /// <summary>单条消息的 Key。保存位置就在 exe 同级的 json 里，别把它提交到仓库。</summary>
         public string ApiKey { get; set; } = "";
 
@@ -36,6 +47,9 @@ namespace AI桌宠_V1._0._0
         /// <summary>自动收起的秒数，10~60。</summary>
         public int AutoHideSeconds { get; set; } = 20;
 
+        /// <summary>桌宠整体大小，0.5~1.5。1.0 = 设计稿的 700×450。</summary>
+        public double PetScale { get; set; } = 1.0;
+
         /// <summary>true 时用 pet_image.png 替换三帧待机动画（用户从网页导入的形象）。</summary>
         public bool UseCustomImage { get; set; } = false;
 
@@ -47,6 +61,14 @@ namespace AI桌宠_V1._0._0
         {
             if (AutoHideSeconds < AutoHideMinSeconds) AutoHideSeconds = AutoHideMinSeconds;
             if (AutoHideSeconds > AutoHideMaxSeconds) AutoHideSeconds = AutoHideMaxSeconds;
+        }
+
+        /// <summary>同样防手改：0 或 20 这种值会让窗口直接消失或者铺满屏幕。</summary>
+        public void ClampPetScale()
+        {
+            if (double.IsNaN(PetScale) || PetScale <= 0) PetScale = 1.0;
+            if (PetScale < PetScaleMin) PetScale = PetScaleMin;
+            if (PetScale > PetScaleMax) PetScale = PetScaleMax;
         }
 
         public static PetSettings Load()
@@ -87,8 +109,17 @@ namespace AI桌宠_V1._0._0
             {
                 settings.PersonaPrompt = DefaultPersona.Prompt;
             }
+            else if (settings.PersonaVersion < DefaultPersona.Version
+                     && settings.PersonaPrompt.Contains(DefaultPersona.LegacyPrivateMarker))
+            {
+                // 老版本的内置人设里写死了具体某个人的学校、经历 —— 那是私人记忆，不能跟着程序发给别人。
+                // 只在"确认这段是内置文本"时才替换；用户自己敲进去的提示词一个字都不动。
+                settings.PersonaPrompt = DefaultPersona.Prompt;
+            }
 
+            settings.PersonaVersion = DefaultPersona.Version;
             settings.ClampAutoHideSeconds();
+            settings.ClampPetScale();
             return settings;
         }
 
@@ -97,6 +128,7 @@ namespace AI桌宠_V1._0._0
             try
             {
                 ClampAutoHideSeconds();
+                ClampPetScale();
                 File.WriteAllText(SettingsPath, JsonConvert.SerializeObject(this, Formatting.Indented));
             }
             catch

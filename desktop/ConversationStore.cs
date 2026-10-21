@@ -172,7 +172,7 @@ namespace AI桌宠_V1._0._0
                 context.Add(new ChatMessage
                 {
                     Role = "system",
-                    Content = "【你对枕头过去的记忆（已压缩，来自更早的对话）】\n" + _file.Memory
+                    Content = "【你对用户过去的记忆（已压缩，来自更早的对话）】\n" + _file.Memory
                 });
             }
 
@@ -212,17 +212,19 @@ namespace AI桌宠_V1._0._0
             var batch = _file.Messages.Skip(_file.Covered).Take(end - _file.Covered).ToList();
             if (batch.Count == 0) return false;
 
+            // 说话人只用「用户 / 你」，不写死某个人名：换个人用同一套压缩逻辑也不会串味
             var transcript = string.Join("\n", batch.Select(m =>
-                (m.Role == "user" ? "枕头" : "小沃") + "：" + m.Content));
+                (m.Role == "user" ? "用户" : "你") + "：" + m.Content));
 
             string existing = string.IsNullOrWhiteSpace(_file.Memory) ? "（还没有）" : _file.Memory;
 
             string prompt =
                 "你是对话记忆压缩器。任务：把下面这段新对话并进已有记忆，输出一段更新后的记忆。\n" +
                 $"要求：\n1. 用中文，不超过 {MemoryMaxChars} 字；\n" +
-                "2. 只保留长期有用的信息：枕头的偏好、性格、近况、在意的人和事、你答应过的事；\n" +
+                "2. 只保留长期有用的信息：用户说过的偏好、性格、近况、在意的人和事、你答应过的事；\n" +
                 "3. 不要复述寒暄、语气词、一次性的闲聊；不要评论，只陈述；\n" +
-                "4. 如果新对话没有值得记的内容，就原样返回已有记忆。\n\n" +
+                "4. 不要编造用户没说过的事（比如名字、职业、学校）；\n" +
+                "5. 如果新对话没有值得记的内容，就原样返回已有记忆。\n\n" +
                 $"【已有记忆】\n{existing}\n\n【新对话】\n{transcript}\n\n" +
                 "直接输出记忆正文，不要任何前缀或解释。";
 

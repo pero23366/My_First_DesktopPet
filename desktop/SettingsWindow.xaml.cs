@@ -42,6 +42,7 @@ namespace AI桌宠_V1._0._0
             _draft.AutoHideEnabled = settings.AutoHideEnabled;
             _draft.AutoHideSeconds = settings.AutoHideSeconds;
             _draft.UseCustomImage = settings.UseCustomImage;
+            _draft.PetScale = settings.PetScale;
 
             LoadIntoControls();
 
@@ -69,10 +70,25 @@ namespace AI桌宠_V1._0._0
             AutoHideSlider.Value = _draft.AutoHideSeconds;
             UpdateAutoHideUi();
 
+            PetScaleSlider.Value = Math.Round(_draft.PetScale * 100);
+            UpdatePetScaleLabel(PetScaleSlider.Value);
+
             UpdateImageStateText();
             UpdateApiStateText();
         }
 
+        /// <summary>50~150 的整数百分比 → 标签文案。</summary>
+        private void UpdatePetScaleLabel(double percent)
+        {
+            PetScaleLabel.Text = $"桌宠大小：{(int)percent}%";
+        }
+
+        /// <summary>
+        /// 模型下拉框和主界面的「聊天 / 思考」按钮共用一个真相：PetSettings.Model。
+        /// 主界面点按钮 → 写 Model → 这里打开时读到的就是它；
+        /// 这里选了 → Save 写回 Model → 主界面 ApplySettings 重刷按钮文案。
+        /// 所以两边不需要互相引用，也不需要事件订阅。
+        /// </summary>
         private void SelectModel(string model)
         {
             foreach (var item in ModelCombo.Items)
@@ -103,7 +119,7 @@ namespace AI桌宠_V1._0._0
         private void UpdateApiStateText()
         {
             bool hasKey = !string.IsNullOrWhiteSpace(ApiKeyBox.Password);
-            ApiStateText.Text = hasKey ? "已填入 Key（本机加密保存）" : "还没填 Key";
+            ApiStateText.Text = hasKey ? "已填入 Key（明文存在本机 pet_settings.json）" : "还没填 Key";
             ApiStateText.Foreground = hasKey
                 ? new SolidColorBrush(Color.FromRgb(0x2E, 0x7D, 0x32))
                 : new SolidColorBrush(Color.FromRgb(0x8A, 0x90, 0xA2));
@@ -117,8 +133,9 @@ namespace AI桌宠_V1._0._0
         }
 
         /// <summary>
-        /// 勾选状态同时控制滑块可用性和警示色。
-        /// 提示本身一直显示，只在开启后变红 —— 和网页版保持同一套判断。
+        /// 勾选状态只控制滑块能不能拖。
+        /// 桌面版没有网页版那句"对话消失后不可找回"的警告：气泡只是藏起来，
+        /// 历史记录窗口里随时能翻到，没必要吓用户。
         /// </summary>
         private void UpdateAutoHideUi()
         {
@@ -126,13 +143,6 @@ namespace AI桌宠_V1._0._0
 
             AutoHideSlider.IsEnabled = enabled;
             AutoHideLabel.Text = $"收起时间：{(int)AutoHideSlider.Value} 秒";
-
-            AutoHideWarn.Foreground = enabled
-                ? new SolidColorBrush(Color.FromRgb(0xB3, 0x54, 0x1E))
-                : new SolidColorBrush(Color.FromRgb(0x8A, 0x90, 0xA2));
-            AutoHideWarn.Background = enabled
-                ? new SolidColorBrush(Color.FromRgb(0xFF, 0xF5, 0xEA))
-                : Brushes.Transparent;
         }
 
         // ---------- 事件 ----------
@@ -147,6 +157,12 @@ namespace AI桌宠_V1._0._0
             // 构造期间控件还没建完，Label 可能为 null
             if (AutoHideLabel == null) return;
             AutoHideLabel.Text = $"收起时间：{(int)e.NewValue} 秒";
+        }
+
+        private void PetScaleSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (PetScaleLabel == null) return;
+            UpdatePetScaleLabel(e.NewValue);
         }
 
         private void ImportButton_Click(object sender, RoutedEventArgs e)
@@ -242,11 +258,13 @@ namespace AI桌宠_V1._0._0
                 ? DefaultPersona.Name
                 : PetNameBox.Text.Trim();
             _settings.PersonaPrompt = PromptBox.Text;
+            _settings.PersonaVersion = DefaultPersona.Version;
             _settings.AutoHideEnabled = AutoHideCheck.IsChecked == true;
             _settings.AutoHideSeconds = (int)AutoHideSlider.Value;
             _settings.UseCustomImage = _draft.UseCustomImage;
+            _settings.PetScale = PetScaleSlider.Value / 100.0;
 
-            _settings.Save(); // 内部会夹一次秒数区间
+            _settings.Save(); // 内部会夹一次秒数与缩放区间
 
             Saved = true;
             // 设置了 DialogResult 窗口会自己关，不要再调 Close()，否则是"关两次"
