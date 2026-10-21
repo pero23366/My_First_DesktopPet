@@ -1,0 +1,44 @@
+<!--
+    历史记录窗口：只读。
+    上面一栏是「小沃记得的事」（被压缩过的记忆），下面是全部对话流水。
+    刻意不提供"从这里继续对话"之类的入口 —— 这是档案馆，不是聊天框。
+-->
+<Window x:Class="AI桌宠_V1._0._0.HistoryWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="小沃 · 历史记录"
+        Width="470" Height="600"
+        WindowStartupLocation="CenterScreen"
+        ShowInTaskbar="False"
+        FontFamily="Microsoft YaHei UI"
+        Background="#F7F8FC">
+
+    <Grid Margin="14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0">
+            <TextBlock x:Name="CountText" Text="共 0 条" FontSize="12" Foreground="#6B7185"/>
+
+            <!-- 记忆块：没压缩过就整块隐藏，不占位置 -->
+            <Border x:Name="MemoryBox" Visibility="Collapsed"
+                    Background="#FFF5EA" BorderBrush="#F0D6B8" BorderThickness="1"
+                    CornerRadius="10" Padding="10" Margin="0,8,0,0">
+                <StackPanel>
+                    <TextBlock Text="小沃记得的事（自动压缩，不占上下文）"
+                               FontSize="11" FontWeight="Bold" Foreground="#B3541E"/>
+                    <TextBlock x:Name="MemoryText" TextWrapping="Wrap"
+                               FontSize="12" Foreground="#7A4B24" Margin="0,6,0,0"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1" x:Name="MessageScroll"
+                      VerticalScrollBarVisibility="Auto"
+                      Margin="0,12,0,0" Padding="0,0,6,0">
+            <StackPanel x:Name="MessagePanel"/>
+        </ScrollViewer>
+    </Grid>
+</Window>

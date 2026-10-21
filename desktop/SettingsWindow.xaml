@@ -1,0 +1,132 @@
+<!--
+    设置窗口：把网页版设置面板的四段搬过来
+      1. 形象    2. 人设    3. API    4. 对话
+    网页版是浮层，桌面版做成独立窗口更符合 Windows 习惯：
+    能拖走、有标题栏的关闭键、不挡住桌宠。
+
+    数据来源全部是 PetSettings，保存时一次性写回 pet_settings.json。
+-->
+<Window x:Class="AI桌宠_V1._0._0.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="小沃 · 设置"
+        Width="430" Height="660"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        FontFamily="Microsoft YaHei UI"
+        Background="#F7F8FC">
+
+    <Grid Margin="14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" Padding="0,0,6,0">
+            <StackPanel>
+
+                <!-- ==================== 形象 ==================== -->
+                <TextBlock Text="形象" FontSize="13" FontWeight="Bold" Foreground="#6B7185"/>
+                <Border Background="White" BorderBrush="#E3E6EF" BorderThickness="1"
+                        CornerRadius="10" Padding="10" Margin="0,6,0,0">
+                    <StackPanel>
+                        <TextBlock x:Name="ImageStateText" Text="默认形象（三帧待机动画）"
+                                   FontSize="12" Foreground="#1F2333" TextWrapping="Wrap"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <Button x:Name="ImportButton" Content="从网页版导入 .pet.json"
+                                    Height="26" Padding="10,0" Cursor="Hand"
+                                    Click="ImportButton_Click"/>
+                            <Button x:Name="ResetImageButton" Content="恢复默认形象"
+                                    Height="26" Padding="10,0" Margin="8,0,0,0" Cursor="Hand"
+                                    Click="ResetImageButton_Click"/>
+                        </StackPanel>
+                        <TextBlock Text="网页版设置面板 →「下载配置（.pet.json）」，把那个文件拖进来即可。"
+                                   FontSize="11" Foreground="#8A90A2" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ==================== 人设 ==================== -->
+                <TextBlock Text="人设" FontSize="13" FontWeight="Bold" Foreground="#6B7185" Margin="0,16,0,0"/>
+                <Border Background="White" BorderBrush="#E3E6EF" BorderThickness="1"
+                        CornerRadius="10" Padding="10" Margin="0,6,0,0">
+                    <StackPanel>
+                        <TextBlock Text="名字" FontSize="11" Foreground="#6B7185"/>
+                        <TextBox x:Name="PetNameBox" Height="26" Margin="0,4,0,0"
+                                 VerticalContentAlignment="Center" MaxLength="12"/>
+
+                        <TextBlock Text="提示词（可直接手改）" FontSize="11" Foreground="#6B7185" Margin="0,10,0,0"/>
+                        <TextBox x:Name="PromptBox" Height="120" Margin="0,4,0,0"
+                                 AcceptsReturn="True" TextWrapping="Wrap"
+                                 VerticalScrollBarVisibility="Auto"
+                                 VerticalContentAlignment="Top" Padding="4"/>
+
+                        <Button x:Name="ResetPersonaButton" Content="恢复默认人设"
+                                Height="26" Padding="10,0" Margin="0,10,0,0"
+                                HorizontalAlignment="Left" Cursor="Hand"
+                                Click="ResetPersonaButton_Click"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ==================== API ==================== -->
+                <TextBlock Text="DeepSeek API" FontSize="13" FontWeight="Bold" Foreground="#6B7185" Margin="0,16,0,0"/>
+                <Border Background="White" BorderBrush="#E3E6EF" BorderThickness="1"
+                        CornerRadius="10" Padding="10" Margin="0,6,0,0">
+                    <StackPanel>
+                        <TextBlock Text="API Key（存在本机 pet_settings.json，不会上传到任何服务器）"
+                                   FontSize="11" Foreground="#6B7185"/>
+                        <PasswordBox x:Name="ApiKeyBox" Height="26" Margin="0,4,0,0"
+                                     VerticalContentAlignment="Center"/>
+
+                        <TextBlock Text="模型" FontSize="11" Foreground="#6B7185" Margin="0,10,0,0"/>
+                        <ComboBox x:Name="ModelCombo" Height="26" Margin="0,4,0,0">
+                            <ComboBoxItem Content="deepseek-chat（快、便宜）" Tag="deepseek-chat"/>
+                            <ComboBoxItem Content="deepseek-reasoner（会思考、慢）" Tag="deepseek-reasoner"/>
+                        </ComboBox>
+
+                        <TextBlock x:Name="ApiStateText" Text="还没填 Key"
+                                   FontSize="11" Foreground="#8A90A2" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ==================== 对话 ==================== -->
+                <TextBlock Text="对话" FontSize="13" FontWeight="Bold" Foreground="#6B7185" Margin="0,16,0,0"/>
+                <Border Background="White" BorderBrush="#E3E6EF" BorderThickness="1"
+                        CornerRadius="10" Padding="10" Margin="0,6,0,0">
+                    <StackPanel>
+                        <!-- 默认不勾：对齐网页版需求 4，回复气泡一直留着 -->
+                        <CheckBox x:Name="AutoHideCheck" Content="回复气泡自动收起（默认不收起）"
+                                  FontSize="12" Cursor="Hand" Click="AutoHideCheck_Click"/>
+
+                        <TextBlock x:Name="AutoHideLabel" Text="收起时间：20 秒"
+                                   FontSize="11" Foreground="#6B7185" Margin="0,10,0,0"/>
+                        <Slider x:Name="AutoHideSlider" Minimum="10" Maximum="60"
+                                SmallChange="5" LargeChange="5" TickFrequency="5"
+                                IsSnapToTickEnabled="True" Value="20"
+                                ValueChanged="AutoHideSlider_ValueChanged"/>
+
+                        <!-- 网页版需求 5 的同一条提示，一个字都不改，保证两端口径一致 -->
+                        <TextBlock x:Name="AutoHideWarn"
+                                   Text="注意，网页版如果选了此项，对话消失后，不可找回！！！"
+                                   FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0"
+                                   Foreground="#8A90A2" Padding="6,4"/>
+
+                        <Button x:Name="ClearHistoryButton" Content="清空对话记录"
+                                Height="26" Padding="10,0" Margin="0,12,0,0"
+                                HorizontalAlignment="Left" Cursor="Hand"
+                                Click="ClearHistoryButton_Click"/>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ==================== 底部按钮 ==================== -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+            <Button x:Name="CancelButton" Content="取消" Width="76" Height="28"
+                    Margin="0,0,8,0" Cursor="Hand" Click="CancelButton_Click"/>
+            <Button x:Name="SaveButton" Content="保存" Width="76" Height="28"
+                    Cursor="Hand" IsDefault="True" Click="SaveButton_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

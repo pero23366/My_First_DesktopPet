@@ -39,3 +39,11 @@ obj/
 *.sln.docstates
 # 发布产物
 publish/
+
+# ---------- 桌面版运行时文件 ----------
+# 用户自己的 Key、聊天记录、导入的形象、旧版迁移残留，都只在本地有意义
+desktop/pet_settings.json
+desktop/chat_history.json
+desktop/pet_image.png
+desktop/apikey.txt
+desktop/apikey.txt.bak

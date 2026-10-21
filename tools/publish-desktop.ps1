@@ -30,7 +30,10 @@
 #>
 [CmdletBinding()]
 param(
-    [string]$ProjectPath = 'D:\code\项目\工具\AI桌宠_V1.0.0',
+    # 默认用仓库内的 desktop/（源码已并入本仓库）。
+    # 之所以能这样写：D:\code\项目\工具\AI桌宠_V1.0.0 现在是指向它的目录联接，
+    # 从老路径打开 VS 或执行 build 都仍然有效，两边是同一份文件。
+    [string]$ProjectPath = (Join-Path $PSScriptRoot '..\desktop'),
     [string]$Version = '1.0.0',
     [string]$OutDir = (Join-Path $PSScriptRoot '..\release'),
     [switch]$KeepStaging
