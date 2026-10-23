@@ -18,11 +18,39 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
+// ═══════════════════════════════════════════════════════════════
+// 第 2 步 · 消息列表
+// 对照原版 TS/ui.ts 的 addMessage()：手工 createElement + append + 算 scrollTop
+// ═══════════════════════════════════════════════════════════════
+
+// ① 一条消息长什么样
+//    ⚠️ from 的取值必须和 CSS 类名对上：CSS 里只有 .pet__msg--me / .pet__msg--pet，
+//       写成 'user' 不会报错，只是那一条气泡样式丢失（我第一版就写错了）
+//    （原版 TS/types.ts 里这个类型叫 BubbleFrom，第 8 步合并时统一）
+interface Message {
+  id: number
+  text: string
+  from: 'me' | 'pet'
+}
+
+// ② 整个对话 = 一个数组。没有 <li>，没有 appendChild
+const messages = ref<Message[]>([])
+let nextId = 1
+
+// ③ 加一条 = 往数组里 push 一个对象。DOM 由模板生成，不用你管
+function addMessage(text: string, from: Message['from']) {
+  messages.value.push({ id: nextId++, text, from })
+}
+
 // 全页面唯一的状态：现在在哪一屏
 const screen = ref<'home' | 'pet'>('home')
 
 function enterPet() {
   screen.value = 'pet'
+  // ④ 原版 main.ts 的逻辑：只在第一次登场时打招呼，来回切不重复刷屏
+  if (messages.value.length === 0) {
+    addMessage('我在这儿。想聊点什么？', 'pet')
+  }
 }
 
 function backHome() {
@@ -31,7 +59,7 @@ function backHome() {
 </script>
 
 <template>
-  <!-- ① 首屏 -->
+  <!-- 首屏 -->
   <main v-show="screen === 'home'" class="home">
     <h1 class="home__title">My First DestopPet</h1>
     <p class="home__subtitle">在浏览器里，养一只会聊天的 AI 桌宠</p>
@@ -45,13 +73,17 @@ function backHome() {
     </p>
   </main>
 
-  <!-- ② 桌宠舞台。注意：原版是 class="pet hidden" 靠 .hidden 藏，
+  <!-- 桌宠舞台。注意：原版是 class="pet hidden" 靠 .hidden 藏，
        这里去掉 .hidden，改用 v-show —— 否则 !important 会和 v-show 的内联 display 打架 -->
   <section v-show="screen === 'pet'" class="pet">
     <!-- 左边：对话框 -->
     <div class="pet__bubble" id="bubble">
       <button class="pet__icon pet__icon--bubble-close" id="bubbleCloseBtn" type="button" title="收起对话">✕</button>
-      <ul class="pet__log" id="chatLog"></ul>
+      <!-- ⑤ 列表渲染：只写"每一条长什么样"，不写"怎么加进去"。
+           :key 用 m.id 而不是下标 —— 理由见第 2 步笔记 -->
+      <ul class="pet__log" id="chatLog">
+        <li v-for="m in messages" :key="m.id" :class="`pet__msg pet__msg--${m.from}`">{{ m.text }}</li>
+      </ul>
     </div>
 
     <!-- 右边：形象 + 底部一排控件 -->
