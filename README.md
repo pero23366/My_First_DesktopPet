@@ -4,6 +4,9 @@
 
 > 这是我在大一做的第一个前后端分离项目，用来练习「一个人把东西做完并交出去」：从原生 HTML/CSS/TS 写起，到接大模型、做本地记忆、打包装机、发布下载。
 
+**在线体验 → [xiaowo-pet.app.workbuddy.host](https://xiaowo-pet.app.workbuddy.host/?sharecode=2OB6JYZ6KZ)**
+（不用装任何东西，打开就能玩；API Key 由使用者自备，只存在自己浏览器里）
+
 <p>
   <img src="image/idle-1.png" alt="小沃形象" width="180">
 </p>
@@ -66,6 +69,7 @@ certutil -hashfile xiaowo-desktop-v1.0.0-win-x64.zip SHA256
 
 | 版本 | 在哪 | 怎么跑 |
 |---|---|---|
+| **网页版（在线）** | 已部署 | **[点这里打开](https://xiaowo-pet.app.workbuddy.host/?sharecode=2OB6JYZ6KZ)** |
 | 网页版（原生 TS） | 仓库根 | `npm install` → `npm run dev` → http://localhost:5173/ |
 | 网页版（Vue 改版） | `pet-vue.html` + `Vue/` | 同上，访问 http://localhost:5173/pet-vue.html |
 | 桌面版（WPF） | `desktop/` | 见 [desktop/README.md](desktop/README.md) |
