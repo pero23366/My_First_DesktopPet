@@ -18,7 +18,18 @@
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+
+    /* 别名：必须和 vite.config.ts 的 resolve.alias 一一对应。
+       两处都要写是因为它们服务不同工具 —— Vite 负责真正的模块解析，
+       tsc 只做类型检查，少一处就会出现"编辑器不报错、构建却挂"（或反过来）。 */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./Vue/src/*"],
+      "@img/*": ["./image/*"]
+    }
   },
-  "include": ["TS"]
+  /* TS/ 是原版（对照基准，不许动）；Vue/src 只检查 .ts，
+     .vue 的类型检查要 vue-tsc，暂未引入。 */
+  "include": ["TS", "Vue/src/**/*.ts", "Vue/src/**/*.d.ts"]
 }

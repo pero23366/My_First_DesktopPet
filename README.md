@@ -54,14 +54,28 @@ certutil -hashfile xiaowo-desktop-v1.0.0-win-x64.zip SHA256
 701154820d2ba1cdfa3511cc012b71153d58195d9b578a3021e2df3be3ff00a8
 ```
 
-### GitHub 下不动怎么办
+### 下载太慢？走加速线路
 
-国内直连 `objects.githubusercontent.com` 经常很慢或断。按顺序试：
+GitHub 的资产生成在 `objects.githubusercontent.com`，国内直连经常只有几十 KB/s。同一台机器、同一个 59MB 文件的实测：
 
-1. 加速线路：`https://ghfast.top/` + 完整下载链接
-2. 夸克网盘备用：**（待填分享链接 + 提取码）**
+| 线路 | 实测速度 | 下完要多久 |
+|---|---|---|
+| GitHub 直链 | 0.015 MB/s | **约 68 分钟** |
+| `gh-proxy.com` 前缀 | 0.092 MB/s | 约 11 分钟 |
+| **`ghfast.top` 前缀** | **0.26 MB/s** | **约 4 分钟** |
 
-> 如果点开 Releases 是 404，说明仓库还没设为公开 —— 此时只有协作者能下。
+所以直接点这个（就是官方资产的镜像转发，同一个文件、同一个 sha256）：
+
+```
+https://ghfast.top/https://github.com/pero23366/My_First_DesktopPet/releases/latest/download/xiaowo-desktop-v1.0.0-win-x64.zip
+```
+
+镜像支持 Range 请求，用浏览器自带的下载器或 IDM/迅雷都能断点续传；万一镜像挂了，回到 Releases 页下官方原链接。
+
+> 想再快只有一个办法：**把包做小**。当前 59MB 里 136.9MB 解压后全是 .NET 运行时（自包含单文件），
+> 改成框架依赖或 .NET Framework 4.8 可以压到 5MB 以内 —— 这是路线图上的事，不是下载渠道能解决的。
+
+夸克网盘备用：**（待填分享链接 + 提取码）**
 
 ---
 

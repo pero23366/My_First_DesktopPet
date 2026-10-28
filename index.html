@@ -19,12 +19,19 @@
     <button id="createPetBtn" class="home__btn" type="button">生成桌宠</button>
 
     <!-- 桌面版入口（A 方案：网页 + 桌面双入口）。
-         链接指向 Releases 的 latest，永远自动指向最新版，不用跟着改版本号。 -->
-    <a class="home__download" href="https://github.com/pero23366/My_First_DesktopPet/releases/latest"
-      target="_blank" rel="noopener noreferrer">下载桌面版 · Windows x64</a>
+         主按钮走国内镜像：它把 Release 资产整段转发，实测比 GitHub 直连快 10~30 倍
+         （同一台机器：直连 0.015 MB/s ≈ 68 分钟，镜像 0.26 MB/s ≈ 4 分钟）。
+         路径用 latest/download/<文件名>：跟着最新版走，发新版不用改这里，
+         但**资产文件名不能变**，改名就要同步改这一行。
+         次级给官方原链接：镜像挂掉时还能下，顺便能看到版本说明和 sha256。 -->
+    <a class="home__download"
+      href="https://ghfast.top/https://github.com/pero23366/My_First_DesktopPet/releases/latest/download/xiaowo-desktop-v1.0.0-win-x64.zip"
+      target="_blank" rel="noopener noreferrer">下载桌面版 · Windows x64（59MB）</a>
     <p class="home__download-hint">
       桌面版可以拖动、可以一直浮在窗口最上层。<br />
-      首次运行若被 Windows 拦截，点「更多信息 → 仍要运行」。
+      首次运行若被 Windows 拦截，点「更多信息 → 仍要运行」。<br />
+      下不动就走<a href="https://github.com/pero23366/My_First_DesktopPet/releases/latest"
+        target="_blank" rel="noopener noreferrer">官方原链接</a>（国内可能很慢，支持断点续传）
     </p>
   </main>
 
